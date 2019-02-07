@@ -1,0 +1,1737 @@
+---
+title: "R Notebook for data analysis with _happyr_ R package in Rajeg (2018)"
+author: "Gede Primahadi Wijaya Rajeg"
+date: "2018-07-15"
+output:
+  html_notebook:
+    fig_caption: true
+    fig_retina: 2
+    number_sections: true
+    toc: true
+    toc_float: true
+    code_folding: hide
+    highlight: "tango"
+    theme: "default"
+  bookdown::word_document2:
+    fig_caption: true
+    fig_width: 6
+    df_print: kable
+link-citations: true
+bibliography: My_Library.bib
+csl: apa-old-doi-prefix.csl
+---
+
+<sup>&copy;</sup> 2018 [Gede Primahadi Wijaya Rajeg](https://figshare.com/authors/Gede_Primahadi_Wijaya_Rajeg/1234749)
+<div itemscope itemtype="https://schema.org/Person"><a itemprop="sameAs" content="https://orcid.org/0000-0002-2047-8621" href="https://orcid.org/0000-0002-2047-8621" target="orcid.widget" rel="noopener noreferrer" style="vertical-align:top;"><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon">orcid.org/0000-0002-2047-8621</a></div>
+
+# Preface {-}
+
+This is an R Markdown Notebook documenting how the codes in the [happyr](https://gederajeg.github.io/happyr/) package [@rajeg_happyr_2018] are used for the statistical analyses in Rajeg's [-@rajeg_metaphorical_2018] PhD thesis (submitted for examination on 28 September 2018). The study focuses on metaphors for `r happyr::scaps("happiness")` near-synonyms in Indonesian. The underlying R Markdown (.Rmd) file of the notebook also includes the in-line codes to generate numeric results in the chunks of the body-text of the relevant chapters. Thus, not all body-text of the thesis are included in this notebook. Note that there can be some differences in the wordings and arrangement between the narative in this notebook and in the final version of the thesis, but not with the quantitative analysis. 
+
+This R notebook is licensed under the Creative Common License [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). To download the raw .Rmd file of the notebook, go to the top right corner of the page (next to the title), click the `Code` drop-down button, and then click `Download Rmd` option. To unfold and see the content of the R code chunks, click on the `Code` button.
+
+### Acknowledgement {-}
+
+The thesis is supervised by Dr. [Alice Gaby](http://profiles.arts.monash.edu.au/alice-gaby/) (main), Dr. [Howard Manns](http://profiles.arts.monash.edu.au/howard-manns/) (associate), and Dr. [Simon Musgrave](http://profiles.arts.monash.edu.au/simon-musgrave/) (associate). The panel members during the author's candidature milestones consist of Dr. [Anna Margetts](http://profiles.arts.monash.edu.au/anna-margetts/), Dr. [Réka Benczes](https://www.researchgate.net/profile/Reka_Benczes), and Prof. [John Newman](http://profiles.arts.monash.edu.au/john-newman/). The thesis is fully funded by [Monash University](https://www.monash.edu), Australia, through the [International Graduate Research Scholarships](https://www.monash.edu/graduate-research/future-students/scholarships): (i) *Monash International Postgraduate Research Scholarships* (MIPRS) and (ii) *Monash Graduate Scholarships* (MGS). The author also benefits from the generous research funding from the Monash Graduate Education and the Arts Graduate Research of Monash University.
+
+```{r global_options, include = FALSE, eval = TRUE}
+knitr::opts_chunk$set(fig.width = 6, 
+                      fig.asp = 0.618, 
+                      fig.retina = 2,
+                      out.width = "70%",
+                      fig.align = "center",
+                      dpi = 300,
+                      echo = TRUE)
+section <- "§"
+```
+
+```{r load-package, message = FALSE, warning = FALSE}
+library(happyr)
+suppressPackageStartupMessages(library(bookdown))
+suppressPackageStartupMessages(library(tidyverse))
+
+```
+
+# Codes for Chapter 3 - Interrater Agreement
+
+## Results for *constructional patterns*
+```{r kappa-cxn-computation}
+# kappa calculation
+irr_cxn <- happyr::kappa_tidy(df = happyr::df_cxn_pattern,
+                              var_names = "^pattern",
+                              round = "pre_disc")
+```
+
+
+The Kappa scores in [Table \@ref(tab:kappa-cxn)](#kappa-cxn) for the constructional pattern annotation show high level of agreements for the first round (i.e., the pre-disc[ussion stage]) ($\mu$^[The Greek symbol "$\mu$" stands for 'mean' or 'average' score, meanwhile "$\sigma$" stands for 'standard deviation' score.] = `r mean(irr_cxn[["kappa"]]) %>% round(2L)`, $\sigma$ = `r sd(irr_cxn[["kappa"]]) %>% round(2L)`).
+
+```{r kappa-cxn}
+# print the result of interrater-agreement for the construction
+irr_cxn %>%
+  mutate(words = paste("*", words, "*", sep = ""),
+         gloss = c("happiness", "joy", "pleasure"),
+         kappa = round(kappa, 2L)) %>% 
+  select(words, gloss, everything()) %>% 
+  knitr::kable(caption = "Cohen's Kappa for the Constructional Patterns identification", row.names = TRUE)
+```
+
+[Figure \@ref(fig:kappa-cxn-figure)](#kappa-cxn-figure) summarises the distribution of the most frequent constructional patterns for the agreed cases, occurring at least five tokens.
+
+```{r kappa-cxn-figure, fig.width=7, fig.asp=0.7}
+happyr::plot_cxn_interrater(df = happyr::top_cxn_data) +
+  labs(title = expression(paste("Distribution of the constructional patterns for the agreed cases (", N["patterns"] >= "5)", sep = "")),
+       caption = "The values inside the bars are the patterns' token frequencies")
+```
+
+The values inside the bars represents the token frequency of the patterns. The '`r happyr::scaps("lex")`-…' part in the legend indicates the syntactic, constructional collocates of the target domain words (the 'T-…' part) that potentially evoke the metaphorical source frames. The constructional patterns in the legend are in descending order from the most to the least frequent types among these top constructions. These types are exemplified in order below.
+
+(@cxn1) *Bagi konsumen yang __memburu__ kesenangan sesaat* (`r happyr::scaps('lex')`-verb_T-dobj) (ind_newscrawl2011_1M:621419) 
+(@cxn2) *kebahagiaan __memuncak__ setelah para penari dan penonton memainkan permainan seremonial kuno* (T-subj_`r happyr::scaps('lex')`-verb) (ind_newscrawl2012_1M:910372) 
+(@cxn3) *menjadikan manusia sebagai __budak__ kesenangan* (`r happyr::scaps('lex')`-noun_T-noun) (ind_newscrawl2012_1M:7767)
+(@cxn4) *__dalam__ kesenangan tentu ada kesusahannya* (`r happyr::scaps('lex')`-prep_T-noun) (ind_web2012_1M:302089)
+(@cxn5) *hidup dunia sangatlah penting kalau dijadikan persiapan untuk kebahagiaan __akhirat__* (T-noun_`r happyr::scaps('lex')`-noun) (ind_mixed2012_1M:406885)
+
+...
+
+## Results for *metaphoricity* of the patterns
+
+The next task is to identify whether the extracted and _agreed_ constructional patterns of the synonyms evoke metaphorical readings or not. For this task, we expected the agreement would be lower than in the previous task as determining metaphorical usages is more subjective. The results are shown in [Table \@ref(tab:kappa-metaphor)](#kappa-metaphor).
+
+```{r kappa-metaphor}
+# kappa calculation first round
+irr_use_1 <- happyr::kappa_tidy(df = happyr::df_meta_use_1st,
+                                var_names = "^use_(coder|author)$",
+                                round = "pre_disc") %>% 
+  mutate(words = paste("*", words, "*", sep = ""),
+         gloss = c("happiness", "joy", "pleasure"),
+         kappa = round(kappa, 2L)) %>% 
+  select(words, gloss, everything())
+
+# kappa calculation second round
+irr_use_2 <- happyr::kappa_tidy(df = happyr::df_meta_use_2nd,
+                                var_names = "^use_2nd_",
+                                round = "post_disc") %>% 
+  mutate(words = paste("*", words, "*", sep = ""),
+         gloss = c("happiness", "joy", "pleasure"),
+         kappa = round(kappa, 2L)) %>% 
+  select(words, gloss, everything())
+
+irr_use_2 %>% 
+  bind_rows(irr_use_1) %>% 
+  knitr::kable(caption = "Cohen's Kappa for the Metaphor Identification (post- and pre-discussion stages)", row.names = TRUE)
+```
+
+In the first round, as expected, the average agreement across the three synonyms is moderate ($\mu$ = `r mean(irr_use_1[["kappa"]]) %>% round(2L)`, $\sigma$ = `r sd(irr_use_1[["kappa"]]) %>% round(2L)`). Differences were resolved in the discussion round.
+
+One of the prominent differences is that the second coder annotated patterns referring to `r happyr::scaps('temporal')` aspect of the synonyms as metaphorical, while `r happyr::scaps('time')` itself is often understood in metaphorical concepts [e.g., @boroditsky_roles_2002]. The patterns include *NP~emo~ __abadi__* '_eternal_ NP~emo~', *NP~emo~ __ditunda__* 'NP~emo~ _be delayed/postponed_, *__menunda__ NP~emo~* 'to _delay/postpone_ NP~emo~', *NP~emo~ __bertahan/berlangsung lama__* 'NP~emo~ _lasts long_', *NP~emo~ __berlangsung sesaat__* 'NP~emo~ *lasts for a while*', and *NP~emo~ hanya __sementara__* 'NP~emo~ is just _for a while_'.
+
+...
+
+With the remaining unresolved differences, the second Kappa was calculated, and the mean Kappa increases to substantial agreement ($\mu$ = `r mean(irr_use_2[["kappa"]]) %>% round(2L)`, $\sigma$ = `r sd(irr_use_2[["kappa"]]) %>% round(2L)`).
+
+## Results for *conceptual metaphors*
+
+Coding for the conceptual metaphors is based on the agreed constructional patterns that have also been agreed to be metaphorical [@shutova_conceptual_2013, p. 1275]. [Table \@ref(tab:kappa-cm)](#kappa-cm) presents the results for this classification.
+
+```{r kappa-cm}
+# kappa calculation first round
+irr_cm_1 <- happyr::kappa_tidy(df = happyr::df_cm,
+                                var_names = "_pre$",
+                                round = "pre_disc") %>% 
+  mutate(words = paste("*", words, "*", sep = ""),
+         gloss = c("happiness", "joy", "pleasure"),
+         kappa = round(kappa, 2L)) %>% 
+  select(words, gloss, everything())
+
+# kappa calculation second round
+irr_cm_2 <- happyr::kappa_tidy(df = happyr::df_cm,
+                                var_names = "_post$",
+                                round = "post_disc") %>% 
+  mutate(words = paste("*", words, "*", sep = ""),
+         gloss = c("happiness", "joy", "pleasure"),
+         kappa = round(kappa, 2L)) %>% 
+  select(words, gloss, everything())
+
+irr_cm_2 %>% 
+  bind_rows(irr_cm_1) %>% 
+  knitr::kable(caption = "Cohen's Kappa for the Conceptual Metaphor coding (post- and pre-discussion stages)", row.names = TRUE)
+```
+
+In the first round, the average Kappa is moderate ($\mu$ = `r mean(irr_cm_1[["kappa"]]) %>% round(2L)`, $\sigma$ = `r sd(irr_cm_1[["kappa"]]) %>% round(2L)`). Discrepancies occur predominantly with regards to determining the level of granularity for the (mnemonic labels of the) metaphors, the decision of which requires subjective interpretation.
+
+...
+
+With the remaining unresolved disagreement after discussion, the second round Kappas were computed. On average, the agreement level has increased to "nearly perfect" agreement ($\mu$ = `r mean(irr_cm_2[["kappa"]]) %>% round(2L)`, $\sigma$ = `r sd(irr_cm_2[["kappa"]]) %>% round(2L)`). Despite this increased agreement level after discussion, after all, any metaphor studies are always permeated by certain degree of subjectivity. In practice, it means that CMT analysts/practicioners can have disagreement over certain analyses, be it when determining whether an expression is metaphorical or not, or when grouping a set of metaphorical expressions into certain conceptual metaphor categories.
+
+# Codes for Chapter 5 - Entrenched metaphors
+
+```{r ttr, warning = FALSE, message = FALSE}
+# calculation for the token, type, and type/token ratios data
+ttr_metaphor <- happyr::ttr(df = happyr::phd_data_metaphor,
+                            schema_var = "metaphors",
+                            lexunit_var = "lu",
+                            float_digits = 2)
+```
+
+```{r perc-of-discussed-metaphor, warning = FALSE, message = FALSE}
+# Tokens proportion of the discussed metaphors
+creative_metaphors_length <- ttr_metaphor %>% 
+  arrange(desc(type_per_token_lu)) %>% 
+  filter(token >= 3) %>% 
+  top_n(10, type_per_token_lu) %>% 
+  select(metaphors, token, type_lu, type_per_token_lu) %>% 
+  dim() %>% 
+  .[1]
+
+creative_metaphors_prop <- ttr_metaphor %>% 
+  arrange(desc(type_per_token_lu)) %>% 
+  filter(token >= 3) %>% 
+  top_n(10, type_per_token_lu) %>% 
+  tally(perc_token) %>% 
+  .$n
+
+top_token_metaphor <- ttr_metaphor %>% 
+  top_n(10, token) %>% 
+  .[,1] %>% 
+  unlist() %>% 
+  unname()
+
+top_type_metaphor <- ttr_metaphor %>% 
+  top_n(10, type_lu) %>% 
+  .[,1] %>% 
+  unlist() %>% 
+  unname()
+
+entrenched_metaphors_prop <- ttr_metaphor %>% 
+  top_n(10, token) %>% 
+  tally(perc_token) %>% 
+  .$n
+
+productive_metaphors_length <- setdiff(top_type_metaphor, top_token_metaphor) %>% 
+  length()
+
+productive_metaphors_prop <- ttr_metaphor %>% 
+  top_n(10, type_lu) %>% 
+  arrange(desc(type_lu)) %>% 
+  filter(token < 100) %>% 
+  tally(perc_token) %>% 
+  .$n
+```
+
+## Introduction
+
+...
+
+For this thesis, I analysed 4580^[These are tokens after manual duplicates-removal.] usage samples of sentences containing words referring to five central members under the generic `r happyr::scaps('happiness')`-like category in Indonesian [cf. @shaver_structure_2001]. The analysis results in the total `r sum(ttr_metaphor$token)` tokens of metaphorical linguistic expressions containing `r dim(ttr_metaphor)[1]` metaphor types.
+
+...
+
+This chapter discusses the top-10 most frequent conceptual metaphors (`r section`[\@ref(frequentmetaphors)](#frequentmetaphors)), constituting `r entrenched_metaphors_prop`% of the total metaphorical tokens; Chapter 6 discusses `r productive_metaphors_prop + creative_metaphors_prop`% of the total `r sum(ttr_metaphor$token)` tokens, consisting of `r productive_metaphors_length+creative_metaphors_length` different metaphor types. In total, Chapter 5 and Chapter 6 account for `r productive_metaphors_prop + creative_metaphors_prop + entrenched_metaphors_prop`% of the total `r sum(ttr_metaphor$token)` tokens of the metaphorical expressions.
+
+...
+
+## Top-10 frequent metaphors for `r scaps("happiness")` in Indonesian {#frequentmetaphors}
+
+This section discuss which metaphors are relatively entrenched for `r scaps("happiness")` in Indonesian, based on their token frequency [cf. @hilpert_keeping_2006, pp. 130-131]. I focus on the ten most frequent metaphors as shown in [Table \@ref(tab:top-10-frequent-metaphors)](#top-10-frequent-metaphors).
+
+```{r top-10-frequent-metaphors}
+ttr_metaphor %>% 
+  top_n(10, token) %>% 
+  select(metaphors, token, perc_token) %>% 
+  mutate(metaphors = happyr::scaps(metaphors)) %>% 
+  rename(Metaphors = metaphors,
+         Token = token,
+         `%Token` = perc_token) %>% 
+  knitr::kable(caption = 'Top-10 metaphors sorted in descending order of the token frequency.', row.names = TRUE)
+```
+
+As [Table \@ref(tab:top-10-frequent-metaphors)](#top-10-frequent-metaphors) shows, `r scaps('happiness')` is most frequently construed as a `r scaps('possessable object')`. The following sub-sections elaborate on the submappings and the inferences evoked for construing aspects of `r scaps('happiness')`. While the discussion begins with the `r scaps('happiness is a possessable object')` metaphor, it may not fully follow the ranked-order of the metaphors in [Table \@ref(tab:top-10-frequent-metaphors)](#top-10-frequent-metaphors). Instead, metaphors conveying related themes will follow from one another in the discussion to highlight similarities. For instance, the aspect of intensity is highlighted mainly by `r scaps('contained entity, liquid in a container')`, and `r scaps('quantity of object')` metaphors. These three metaphors are accordingly presented in sequence, despite their non-successive ranking in [Table \@ref(tab:top-10-frequent-metaphors)](#top-10-frequent-metaphors).
+
+### Happiness is a possessable object {#possession}
+
+```{r possession-data-for-bodytext}
+lu_possessable <- happyr::get_lu_table("possessable",
+                                       top_n_only = FALSE,
+                                       df = happyr::phd_data_metaphor,
+                                       incl_submappings = TRUE,
+                                       submapping_perc = TRUE)
+
+possess_frames <- happyr::get_frames("possessable",
+                                     df = happyr::phd_data_metaphor)
+
+possess_submappings <- happyr::get_submappings("possessable",
+                                               df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, 'caus'), 'cause', 'existence'),
+         aspect = if_else(str_detect(submappings, 'attain'), 'attainment', aspect),
+         aspect = if_else(str_detect(submappings, 'change of '), 'ceasing', aspect))
+
+possess_submappings_aspect <- possess_submappings %>% 
+  group_by(aspect) %>% 
+  summarise(n = sum(n), 
+            type = sum(type)) %>% 
+  mutate(perc = round(n/sum(n) * 100, 2), 
+         type_perc = round(n/sum(n) * 100, 2)) %>% 
+  arrange(desc(n))
+```
+
+...
+
+The cause of `r scaps("happiness")` is referred to via interrelated frames evoking `r scaps("object transfer")`. They are (i) the `r scaps("offering")` frame (`r possess_frames %>% filter(frames=='offering') %>% select(perc) %>% unlist()`% of the total tokens of the `r scaps("possessable object")` metaphor), which in *FrameNet* is described as adopting the structure of `r scaps("giving")` frame; (ii) the `r scaps("giving")` frame (`r possess_frames %>% filter(frames=='giving') %>% select(perc) %>% unlist()`%); (iii) `r scaps("dispersal")`, which is related to `r scaps("resource transfer")` frame in *MetaNet* (`r possess_frames %>% filter(frames=='dispersal') %>% select(perc) %>% unlist()`%); and (iv) the generic `r scaps("caused motion")` frame (`r possess_frames %>% filter(frames=='caused motion') %>% select(perc) %>% unlist()`%), which includes the `r scaps("bringing")` frame.
+
+...
+
+From the perspective of the Recipient, receiving or gaining the transferred possessable object is mapped onto the onset of `r scaps("happiness")`. This inference is evoked through the `r scaps("gain possession")` frame (`r possess_frames %>% filter(frames=='gain possession') %>% select(perc) %>% unlist()`%). The frame is available in the MN frame repository.
+
+...
+
+The experience of happiness can be expressed as the gaining of a possessabe object, invoked through the `r scaps("possession")` frame (`r possess_frames %>% filter(frames=='possession') %>% select(perc) %>% unlist()`%).
+
+...
+
+[Table \@ref(tab:possessable-object-lu-table)](#possessable-object-lu-table) shows the LU types most frequently co-occur with the `r scaps('happiness')` words to evoke the `r scaps(tolower('POSSESSABLE OBJECT'))` metaphor and its frame-based submappings.
+
+```{r possessable-object-lu-table}
+happyr::get_lu_table("possessable object", 
+                     top_n_only = TRUE,
+                     df = happyr::phd_data_metaphor) %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a possessable object</span>.', row.names = TRUE)
+```
+
+
+Percentage overall in the LU table indicates the percentage of a given LU from the total tokens of the metaphor.
+
+*Beri(kan)* 'to give', for instance, is the most frequent LU for the `r scaps("giving")` frame (`r lu_possessable[grep('beri\\(kan\\)', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`% of the total tokens of the `r scaps("giving")` frame), compared to *kembalikan* 'to give sth. back; to return sth.' (`r lu_possessable[grep('kembalikan', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()` %). For `r scaps("gain possession")` frame, *dapat(kan)*^[I put the 'v' tag for *dapat(kan)* 'to get' since the form *dapat* has another function as an abilitative modal auxiliary 'to be able to; can'.] 'to get' (`r lu_possessable[grep('dapat\\(kan\\)', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`%) is the most frequent LU. *Berbagi* 'to share' is the most common LU (`r lu_possessable[grep('berbagi', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`%) for the `r scaps("dispersal")` frame, while *miliki* 'to have/own' (`r lu_possessable[grep('miliki', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`%) and *kehilangan* 'to lose' (`r lu_possessable[grep('kehilangan', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`%) are representative for the `r scaps("possession")` and `r scaps("lose possession")` frames respectively. Lastly, *bawa(kan)* 'to bring sth. (to sb.)' (`r lu_possessable[grep('bawa\\(kan\\)', lu_possessable$Lexical_units, perl = T), 6] %>% unlist()`%) is the most frequent LU for the `r scaps("caused motion")` frame. 
+
+Despite its high token frequency, `r scaps("happiness is a possessable object")` has a low degree of lexical diversity in its linguistic expressions given its token frequency. The metaphor is expressed with different LU types in only `r happyr::get_meta_freq_profiles('possessable', type_per_token_lu, df = ttr_metaphor) %>% .[,2] %>% unlist()`% of the total `r filter(ttr_metaphor, str_detect(metaphors, "possessable object$"))[["token"]]` tokens. The percentage is derived from dividing the type frequency of the metaphor with its token frequency (i.e. the *type/token ratio* (TTR) measure) and normalising it into percentage [cf. @stefanowitsch_corpus_2017, p. 282]. The TTR value of `r scaps(tolower('POSSESSABLE OBJECT'))` indicates that it is evoked by a few yet highly frequent and conventional metaphorical expressions.
+
+Overall, the predominant submappings in the `r scaps("possessable object")` metaphor are those involving (potential) object transfers (`r possess_submappings_aspect %>% filter(aspect=='cause') %>% select(perc) %>% unlist()`% of the total `r filter(ttr_metaphor, str_detect(metaphors, "possessable object$"))[["token"]]` tokens of the metaphor), highlighting the cause for `r scaps("happiness")`. It is then followed by the receiving of the possessable object, hence the attainment of `r scaps("happiness")` (`r possess_submappings_aspect %>% filter(aspect=='attainment') %>% select(perc) %>% unlist()`%); the possessing, or existence, (`r possess_submappings_aspect %>% filter(aspect=='existence') %>% select(perc) %>% unlist()`%); and lastly the losing, or ceasing, of `r scaps("happiness")` (`r possess_submappings_aspect %>% filter(aspect=='ceasing') %>% select(perc) %>% unlist()`%).
+
+### Happiness is a desired goal {#desired-goal}
+
+```{r destination-data-for-bodytext}
+goal_submappings <- happyr::get_submappings("desired", df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, 'reaching|capturing|grasping|finding'), 'attaining', 'process'),
+         aspect = if_else(str_detect(submappings, 'access|aids'), 'means', aspect),
+         aspect = if_else(str_detect(submappings, 'end of a path'), 'goal', aspect),
+         aspect = if_else(str_detect(submappings, 'impeding'), 'obstacle', aspect)) %>%
+  group_by(aspect) %>%
+  mutate(perc_aspect_by_submet = round(n/sum(n) * 100, 2),
+         type_perc_aspect_by_submet = round(type/sum(type) * 100, 2)) %>%
+  ungroup()
+
+goal_aspect <- goal_submappings %>%
+  group_by(aspect) %>%
+  summarise(n = sum(n), type = sum(type)) %>%
+  mutate(perc = round(n/sum(n) * 100, 2), 
+         type_perc = round(type/sum(type) * 100, 2)) %>%
+  arrange(desc(n))
+
+# Semantic types of the PURSUIT event
+searching_lu <- c("cari", "pencarian", "jemput(lah)", "gali", "pendulang", "sasaran")
+searching_lu_token <- dim(filter(happyr::phd_data_metaphor, lu %in% searching_lu))[1]
+
+chasing_lu <- c("kejar", "pengejaran")
+chasing_lu_token <- dim(filter(happyr::phd_data_metaphor, lu %in% chasing_lu))[1]
+
+hunting_lu <- c("pemburu", "buruan", "memburu")
+hunting_lu_token <- dim(filter(happyr::phd_data_metaphor, lu %in% hunting_lu))[1]
+
+# pursue semantics table
+pursue_semantics <- data.frame(semantics = c("searching", "chasing", "hunting"), 
+                               n = c(searching_lu_token, chasing_lu_token, hunting_lu_token), 
+                               type = c(length(searching_lu), length(chasing_lu), length(hunting_lu))) %>%
+  mutate(perc = round(n/sum(n) * 100, 2),
+         type_perc = round(type/sum(type) * 100, 2))
+
+# grammatical voice of verbal lexical units for the metaphor
+voice_destination <- happyr::phd_data_metaphor %>% 
+  filter(str_detect(metaphors, "desired"), 
+         lu_phrase_type == "vp") %>% 
+  group_by(voice_verbal_lu, submappings) %>% 
+  summarise(n = n(), 
+            type_per_voice = n_distinct(lu)) %>% 
+  arrange(submappings, desc(n)) %>% 
+  group_by(submappings) %>% 
+  mutate(perc_voice_by_submet = round(n/sum(n) * 100, 2), 
+         perc_type = round(type_per_voice/sum(type_per_voice) * 100, 2))
+
+voice_destination_max <- voice_destination %>% 
+  filter(n == max(n)) %>% 
+  ungroup()
+
+voice_destination_summary <- voice_destination %>% 
+  group_by(voice_verbal_lu) %>% 
+  summarise(n = sum(n), type_per_voice = sum(type_per_voice)) %>% 
+  mutate(perc = round(n/sum(n) * 100, 2),
+         perc_type_per_voice = round(type_per_voice/sum(type_per_voice) * 100, 2)) %>% 
+  arrange(desc(perc))
+```
+
+In `r section`[\@ref(possession)](#possession), `r scaps("happiness")` is understood as an object caused to move to the Goal, namely the candidate Experiencer, via various kinds of transferring scenes. In this sense, the candidate Experiencer takes a rather passive role in acquiring the possession. In contrast, `r scaps(tolower("HAPPINESS IS A DESIRED GOAL"))` construes `r scaps("happiness")` as a location or object towards which the candidate Experiencer moves, reflecting the `r scaps("quest")` metaphors family proposed by Stefanowitsch [-@stefanowitsch_happiness_2004] [cf. @lakoff_philosophy_1999, pp. 196-197].
+
+`r scaps("Happiness is a desired goal")` consists of submappings built upon structures of the `r scaps("self-propelled motion to a destination")` frame [cf. @lakoff_philosophy_1999, pp. 190-191]. The submappings provide rich inferences concerning (i) `r scaps("happiness")` as an aspiration (e.g. a desired object or location), (ii) process and means to achieve the aspiration, as well as (iii) how the process may be halted. Citations (@tujuan) to (@berujung) illustrate the mapping of `r scaps("happiness")` onto the Goal role. The metaphorical expressions are based on lexical units (LUs) that evoke the schematic image of the <span `r scaps("source-path-goal")` (SPG) frame.
+
+(@tujuan) example for _tujuan_ (ind_newscrawl2012_1M:192777)
+(@bermuara) example for _bermuara ke ujung_ (ind_newscrawl2011_1M:667627)
+(@berujung) example for _berujung pada_ (ind_newscrawl2012_1M:536251)
+
+The SPG frame describes a series of locational roles, namely Source, Path, and Goal, along which an entity, called Trajector, moves, or is conceived as moving^[See *MetaNet* (MN) and *FrameNet*'s (FN) definition of `r scaps('source-path-goal')` frame in their respective frame repository.]. When the frame is used for designating `r scaps("happiness is a desired goal")` metaphor, `r scaps("happiness")` is mapped onto the Goal role. That is, `r scaps("happiness")` is understood as the Goal-end of a Path, towards which the Trajector may move along from a Source.
+
+Concerning the conceptualisations of the attempt for achieving `r scaps("happiness")`, there are several relevant frames. Two of these frames indicate the means that are required by the Mover in h(is/er) attempt to reach the Goal; these frames are the `r scaps("access to a location")` (as in (@kunci) to (@tiket)) and `r scaps("guided motion")` frames (as in (@guide) and (@guide1)). When mapped onto the target frame, the inference from these two frames indicates that `r scaps('happiness')` cannot be directly achieved without certain means, such as access or guidance.
+
+(@kunci) example for _kunci_ (ind_mixed2012_1M:424589)
+(@pintu) example for _pintu_ (ind_web2011_300K:108339)
+(@tiket) example for _ticket_ (ind_mixed2012_1M:397320)
+(@guide) example for `r scaps("guided motion")` frame with _mengantarkan_ (ind_web2012_1M:358204)
+(@guide1) example for `r scaps("guided motion")` frame with _memimpin ke jalan_ (ind_newscrawl2012_1M:872312)
+
+Next, the attempt by the candidate Experiencer to achieve `r scaps("happiness")` is conceptualised via `r scaps("purposeful action is self-propelled motion to a destination")` metaphor, based on the `r scaps('self-propelled motion to a destination')` frame^[See https://metaphor.icsi.berkeley.edu/pub/en/index.php/Frame:Self_propelled_motion_to_a_destination (Last access: 15 August 2018).]. The metaphor is composed of two more basic metaphors. The first of these is `r scaps("action is self-propelled motion")` (e.g. She *squeezed her way to* thinner thighs^[Taken from https://metaphor.icsi.berkeley.edu/pub/en/index.php/Metaphor:ACTION_IS_SELF-PROPELLED_MOTION_ALONG_A_PATH (Last access: 15 August 2018).]), which is grounded on the correlation of doing actions and moving. The metaphor also indicates that the Mover has his/her own control over the direction of its action/motion; yet, as can be seen from examples (@guide) and (@guide1) above, the movement can also be taken over, or guided, by a co-Mover. The second constituting metaphor is `r scaps("purposes are destination")` (e.g. We have *taken the first step*), which is grounded on the correlation of reaching a destination with achieving a purpose (e.g. going to a cafe for a coffee) [@lakoff_philosophy_1999, pp. 52-53, 187-191].
+
+
+In the `r scaps('self-propelled motion to a destination')` frame, the Goal role is profiled as a desirable goal, which is not inferred from its parent frame, namely `r scaps("motion to a location")`; this parent frame profiles only the goal-oriented motion. The metaphor based on `r scaps('self-propelled motion to a destination')` frame suggests that becoming happy constitutes a purposeful attempt due to the desirability of the Goal (cf. (@motiontolocation) and (@kembali)). Moreover, the person aiming to be happy needs to take certain action, hence movement, to realise this purpose. Indonesian voice morphology can contribute to the agentive construal of the candidate Experiencer in the metaphor. Agentivity can be inferred from the verbal LUs of the metaphor that most frequently occur in active voice construction that, in Indonesian, can be marked by prefix *meN-* (`r dplyr::filter(voice_destination_summary, str_detect(voice_verbal_lu, '^active'))$perc`% of the total `r sum(voice_destination_summary$n)` tokens of the verbal LUs for the metaphor) (see, for instance, (@motiontolocation), (@search), and (@chase)).
+
+(@motiontolocation) example with motion to a destination with *menuju* (ind_web2012_1M:398400)
+(@kembali) example with *kembali ke* (ind_newscrawl2011_1M:451099)
+
+The number of tokens for the `r scaps('self-propelled motion to a destination')` frame only accounts for (`r dplyr::filter(goal_submappings, grepl("process", aspect) & grepl("motion", submappings))[[7]]`%) of the total `r sum(dplyr::filter(goal_submappings, grepl("process", aspect))[["n"]])` tokens referring to the attempt to be happy. This is predominantly expressed by the verb *menuju* 'to head to a location' as in (@motiontolocation) above. A preferable frame for conceptualising the attempt constitutes the subcase of the `r scaps("self-propelled motion to a destination")`, namely the `r scaps("pursue")` frame (`r dplyr::filter(goal_submappings, grepl("process", aspect) & grepl("pursu", submappings))[[7]]`% of the total frequency for expressions evoking the attempt aspect).
+
+The *subcase of relation* in *MetaNet* (MN) indicates that `r scaps("pursue")` fully incorporates the frame elements and inferential structures of its parent frame (i.e. `r scaps("self-propelled motion to a destination")`), such as the desirability of the Goal, Self-motion_x-schema/process, and the Mover. In addition, `r scaps("pursue")` as the child frame may have semantic specification, or elaboration, of the frame role parameters. However, MN repository has not yet provided these detailed specifications that may distinguish the `r scaps("pursue")` frame from its parent frame. Perhaps, `r scaps("pursue")` elaborates the semantics of the Self-motion_x-schema with more specific means of action undertaken to achieve the goal, such as searching (@search), chasing (@chase), or hunting (@hunt). Meanwhile, the `r scaps("self-propelled motion to a destination")` may only profile a self-initiated motion of the Mover-actor until (s)he reaches the destination. No specific means are implied in this frame for how the Goal is reached^[No relevant lexical units are given in the entry of `r scaps("self-propelled motion to a destination")` frame. See https://metaphor.icsi.berkeley.edu/pub/en/index.php/Frame:Self_propelled_motion_to_a_destination (Last access: 9 September 2018).] and for whether the Goal is static or moving.
+
+(@search) example with *mencari* (searching) (ind_mixed2012_1M:397221)
+(@chase) example with *mengejar* (chasing) (ind_mixed2012_1M:504905)
+(@hunt) example with *pemburu* (hunting) (ind_newscrawl2011_1M:79925)
+
+The lexical units (LUs) within `r scaps("pursue")` represent three categories of semantic type. They are LUs referring to `r scaps("searching")` (`r dplyr::filter(pursue_semantics, str_detect(semantics, "searching"))[["perc"]]`% of the total `r sum(pursue_semantics$n)` tokens of expressions evoking `r happyr::scaps("pursue")`), `r scaps("chasing")` (`r dplyr::filter(pursue_semantics, str_detect(semantics, "chasing"))[["perc"]]`%), and `r scaps("hunting")` (`r dplyr::filter(pursue_semantics, str_detect(semantics, "hunting"))[["perc"]]`%). The preference for the searching process portrays `r scaps("happiness")` as something hidden and requiring exploration for its attainment. Intuitively, _mengejar_ 'to chase; run after' in example (@chase) may invite an image of (i) a moving, desired Goal, and (ii) having an immediate expectation by the Self-mover when chasing the Goal. In the target frame, this inference maps onto the exigency for experiencing `r scaps("happiness")`. After all, examples (@search) to (@hunt) clearly single out the active role of the Self-mover in achieving the Goal. In the target frame, this inference corresponds to the active responsibility of the candidate Experiencer for h(is/er) own `r scaps("happiness")`.
+
+A small number (i.e. `r dplyr::filter(goal_aspect, aspect == "obstacle")$perc`%) of the tokens of the `r scaps("happiness is a desired goal")` metaphor evoke submapping conveying potential inhibition on the attempt to achieve `r scaps("happiness")`. Example (@tahan) specifies a self-internal inhibition for certain prohibited pleasure.
+
+(@tahan) example with *menahan* diri *dari* beragam __kesenangan__ (ind_web2011_300K:118298)
+
+Within the arc of the `r scaps("happiness is a desired goal")` metaphor, the achievement of `r scaps("happiness")` is conceptualised as the final stage of the motion. This could be reaching/arriving (@capai), locating/finding (@temukan), and capturing/grasping (@raih) the desired goal [cf. @stefanowitsch_happiness_2004, pp. 142-145].
+
+(@capai) example with *mencapai* (ind_mixed2012_1M:263518)
+(@temukan) example with *menemukan* (ind_mixed2012_1M:565135)
+(@raih) example with *meraih* (ind_web2012_1M:152154)
+
+All the source frame LUs conveying the final stage of the motion process indicate that a prior effort is required by the Mover before (s)he can reach or capture h(is/er) desired Goal. This inference maps onto the efforts required for somebody to be happy.
+
+```{r desired-goal-lu-table}
+get_lu_table("desired", df = happyr::phd_data_metaphor) %>% 
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a desired goal</span>.', row.names = TRUE)
+```
+
+`r scaps("Happiness is a desired goal")` has little variation in its linguistic expressions, showing only `r happyr::get_meta_freq_profiles('desired', type_per_token_lu, df = ttr_metaphor)[[2]]`% variation given its overall token frequency (`r happyr::get_meta_freq_profiles('desired', token, df = ttr_metaphor)[[2]]` tokens). The percentage of the submapping indicating the attempt to attain `r scaps('happiness')` is only slightly higher (`r dplyr::filter(goal_aspect, aspect == "process")$perc`%) than the attainment (`r dplyr::filter(goal_aspect, aspect == "attaining")$perc`%). This distribution suggests that the process to and the attainment of `r scaps("happiness")` are relatively equally highlighted in the sample.
+
+...
+
+## Happiness is a location {#location}
+
+```{r location-data-for-maintext}
+location_submappings <- happyr::get_submappings("a location$", df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, 'motion into'), 'change of state into', 'being in a state'),
+         aspect = if_else(str_detect(submappings, '(moving away|being far) from'), 'change of state out', aspect),
+         aspect = if_else(str_detect(submappings, 'caused'), 'caused change of state to', aspect),
+         aspect = if_else(str_detect(submappings, 'is a (landmark|bounded entity|geographic|source of a path|location$)'), 'location state', aspect))
+
+# get the LU table
+location_lu <- happyr::get_lu_table("is a location$",
+                                    top_n_only = TRUE,
+                                    df = happyr::phd_data_metaphor)
+```
+
+`r scaps("Happiness is a location")` is a subcase of one of the central metaphors in the *Location Event Structure Metaphor* (LESM) system, i.e. `r scaps("states are location")` [@lakoff_philosophy_1999, pp. 179-180]. The metaphor is centred around the `r scaps('location')`-related frames, such as the `r scaps("being at a location")` frame. This frame schematically describes a scene where a trajector (i.e. the Located_thing role) occupies a location (i.e. the Current_location role). The use of the frame in `r scaps("happiness is a location")` sees the role-mappings of (i) the target frame `r scaps('happiness')` onto the Current_location role of the source frame and (ii) the candidate Experiencer onto the Located_thing role. 
+
+The principal inference invited by `r scaps("happiness is a location")` is that the experience of `r scaps("happiness")` is expressed as the experiencer’s being located at the `r scaps("happiness")`-location. The experiencer is thus depicted as the Located_thing. The metaphor tends to be expressed via prepositional phrase whose nominal object slot is filled with the `r scaps("happiness")` nouns. This nominal object slot is linked to the Current_location role. The most frequent preposition is *dalam* 'inside' (cf. (@dalam)). 
+
+(@dalam) example with *dalam* (ind_newscrawl2011_1M:512071)
+
+*Dalam* indicates that the Current_location role is a bounded region with interior and exterior. The `r scaps("bounded region")` frame evokes a more specific inference compared to the unbounded location version (as in (@di) and (@pada) below). Being happy maps onto being in the interior of the bounded region, while unhappy is mapped onto the exterior.
+
+(@di) example with *di __keceriaan__* (Kompas via WebCorp:40)
+(@pada) example with *pada* suatu *__kegembiraan__* (ind_mixed2012_1M:194551)
+
+The same idea indicated in (@dalam) to (@pada) can be expressed by the collocation of the prepositions with stative, locational verbs. The verbs add temporal aspect, indicating that the Experiencer is in an ongoing Location-state. The nature of the preposition will tell us whether the location is a bounded region (as in (@beradadalam) to (@berteduhdalam)) or underspecified for its interior-exteriority (as in (@beradapada)). The submapping of `r scaps("being happy as being at a location")` exemplified in (@dalam)-(@beradapada) takes up the majority of the metaphor's token (`r sum(filter(location_submappings, str_detect(submappings, "being (in|at)"))[["perc"]])`% out of `r sum(location_submappings$n)` tokens of `r scaps("happiness is a location")`). 
+
+(@beradadalam) example with _berada dalam_ NP (IWaC via Sketch Engine:ID77725)
+(@berteduhdalam) example with _berteduh dalam_ NP (Antara News via WebCorp:11)
+(@beradapada) example with _berada pada_ NP (ind_web2012_1M:642581)
+
+While being happy is conceptualised as being at a location, being unhappy is conceptualised as being away from the `r scaps("happiness")`>-location (`r filter(location_submappings, str_detect(submappings, "being far from"))[["perc"]]`% of the metaphor's token) (@jauhdari)
+
+(@jauhdari) example with _jauh dari_ (ind_newscrawl2012_1M:26855)
+
+Other submappings built around `r scaps("happiness is a location")` are related to the change of location as expressed via motion verbs [cf. @dodge_deep_2016, pp. 274-275]. In the `r scaps('motion')`-related submappings, the Experiencer fills the Mover role and the `r scaps("happiness")` nouns fill the Location-related role, namely Source-location or Goal-location. The Mover can move *(in)to* ((@masukkedalam) and (@terjerumus)) or *away from* the Location ((@tinggalkan) to (@jauhkan)). These two change-of-location inferences are mapped onto the change-of-state aspect in the target, resulting in two other submappings. Namely, `r scaps("becoming happy is motion to a location")` (`r filter(location_submappings, str_detect(submappings, "motion into"))[["perc"]]`%) and `r scaps("ceasing happiness is moving away from the location")` (`r filter(location_submappings, str_detect(submappings, "moving away"))[["perc"]]`%). 
+
+(@tinggalkan) example with _meninggalkan_ (ind_mixed2012_1M:950273)
+(@hindari) example with _menghindari_ (ind_news2012_300K:116280)
+(@jauhi) example with _menjauhi_ (ind_mixed2012_1M:25946)
+(@jauhkan) example with _menjauhkan_ (ind_web2012_1M:825998)
+(@masukkedalam) example with _masuk ke dalam_ (ind_mixed2012_1M:669544)
+(@terjerumus) example with _terjerumus dalam_ (ind_mixed2012_1M:294560)
+
+An interesting example is the use of the downward motion verb *terjerumus* in (@terjerumus). The uncontrolled falling movement conveyed by *terjerumus* suggests some sort of negative harm for the Mover (e.g., harmed face). In the target frame, this construal indicates that experiencing *kesenangan* 'pleasure' can be a negative one. This construal could be motivated by the `r scaps("negative states are low location")` [@dancygier_computational_2017, p. 579].
+
+Another submapping incorporates a causal structure into the `r scaps("motion")` frame, such that the motion of the Mover is caused by the Agent role of some kind. This scene represents the `r scaps("caused change of state is caused motion to a location")` submapping (`r filter(location_submappings, str_detect(submappings, "causing.*?caused motion to"))[["perc"]]`%). In the target frame, this suggests that there is certain cause for someone's `r scaps("happiness")`. 
+
+...
+
+[Table \@ref(tab:lu-location)](#lu-location)^[The `top_n()` function of the *dplyr* package in R will include more rows from the specified 'n' number (i.e. ten) if there are ties among the group, i.e. the LUs, based on the variable used for ordering, i.e. their token frequency. Therefore, Table [\@ref(tab:lu-location)](#lu-location) specifically lists `r location_lu %>% dim() %>% .[1] %>% numbers2words` items when ten is requested.] shows that `r location_lu %>% filter(str_detect(Lexical_units, '^\\*dalam')) %>% .$Perc_overall`% of the tokens for `r scaps("happines is a location")` is due to one LU type, namely *dalam* 'inside sth.'. This proportion indicates that the metaphor is evoked by a conventional linguistic expression. This is further corroborated by the low percentage of variation in the metaphor's linguistic realisation given the metaphor's token frequency, that is, only `r happyr::get_meta_freq_profiles('is a location', type_per_token_lu, df = ttr_metaphor)[[2]]`% of the metaphor's overall tokens are expressed with different LU types.
+
+```{r location-lu-table}
+# print the LU
+location_lu %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a location</span>.', row.names = TRUE)
+```
+
+In sum, `r scaps("happiness is a location")` metaphor principally foregrounds the nature of how one experiences `r scaps("happiness")`. This is reflected through the highest proportion of the `r scaps("being happy is being at a location")` submapping (`r sum(filter(location_submappings, str_detect(aspect, "being in a state"))[["perc"]])`%). The metaphor also highlights the change of state *away from* or *into* `r scaps("happiness")`; the former has higher proportion than the latter (`r sum(filter(location_submappings, str_detect(aspect, "state out"))[["perc"]])`% vs. `r sum(filter(location_submappings, str_detect(aspect, "state (in)?to"))[["perc"]])`%).
+
+...
+
+## Happiness is a located object {#locatedobject}
+
+```{r located-object-data-for-maintext}
+# submappings
+located_submappings <- happyr::get_submappings("located object$", df = happyr::phd_data_metaphor)
+
+# lexical unit table
+located_lu <- happyr::get_lu_table("located object$", df = happyr::phd_data_metaphor)
+
+# print the lu
+located_lu %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a located object</span>.', row.names = TRUE)
+```
+
+The first one is the `r scaps("existence of happiness is presence of an object at a location")`, accounting for `r located_submappings %>% filter(str_detect(submappings, '^exis.*?presence')) %>% .$perc`% of the total tokens of the metaphor.
+
+...
+
+The first submapping entails the second one, i.e. `r scaps("inexistence of happiness is absence of an object at a location")`, representing `r located_submappings %>% filter(str_detect(submappings, 'absence')) %>% .$perc`% of the total tokens
+
+...
+
+The second submapping has its causative variant, namely `r scaps("causing happiness to cease is causing an object to be absent")` (`r located_submappings %>% filter(str_detect(submappings, 'vanishing')) %>% .$perc`%). This third submapping introduces the Agentive role to the scene via transitivising the LU, such as *hilang* 'be gone', using causative suffix -*kan*, into *hilang-kan* 'cause sth. to be gone'.
+
+...
+
+Despite its high token frequency, the <span style="font-variant:small-caps;">located object</span> metaphor is less diverse in its linguistic manifestation due to nearly half of its total tokens (`r filter(located_lu, Perc_overall == max(Perc_overall))[["Perc_overall"]]`%) being evoked by *ada (di/pada X)* (cf. [Table \@ref(tab:lu-located-object)](#lu-located-object)). That is, the metaphor's frequent occurrence is composed of a proportionally limited type of LUs that are frequently repeated, rather than of a proportionally heterogeneous set of LUs [@gola_taste_2016, p. 53]. Overall, only `r happyr::get_meta_freq_profiles(metaphor = "located object", type_per_token_lu, df = ttr_metaphor)[[2]]`% of the metaphor's tokens are of different LU types;  the rest of the tokens is repetition from that proportion [cf. @stefanowitsch_corpus_2017, p. 282].
+
+
+## Happiness is a contained entity
+
+```{r contained-entity-data-for-maintext}
+# CONTAINED ENTITY metaphor data
+## frames
+contained_entity_frames <- happyr::get_frames(metaphor = "contained entity",
+                                              df = happyr::phd_data_metaphor) %>%
+  group_by(frames) %>%
+  summarise(n = sum(n)) %>%
+  mutate(perc = round(n/sum(n) * 100, 2),
+         metaphors = "contained entity") %>%
+  arrange(desc(n))
+
+## submappings
+contained_entity_submappings <- happyr::get_submappings("contained entity",
+                                                        df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, "expression"), "expression", "containment"),
+         aspect = if_else(str_detect(submappings, "(high intensity|intensified|intense)"), "increased intensity", aspect),
+         aspect = if_else(str_detect(submappings, "regulating"), "regulation", aspect))
+
+## aspect summarised
+contained_entity_aspect <- contained_entity_submappings %>% 
+  group_by(aspect) %>% 
+  summarise(n = sum(n), 
+            type = sum(type), 
+            perc = sum(perc), 
+            type_perc = sum(type_perc)) %>%
+  arrange(desc(n))
+
+## lexical unit table
+contained_entity_lu <- happyr::get_lu_table("contained entity",
+                                            top_n_only = FALSE,
+                                            df = happyr::phd_data_metaphor)
+
+contained_entity_lu %>%
+  top_n(10, N) %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a contained entity</span>.', row.names = TRUE)
+```
+
+The submappings in the <span style="font-variant:small-caps;">contained entity</span> metaphor involve `r numbers2words(dim(contained_entity_frames)[1])` source frames: (i) <span style="font-variant:small-caps;">containing</span> (`r contained_entity_frames %>% filter(str_detect(frames, 'containing')) %>% select(perc) %>% unlist()`%), (ii) <span style="font-variant:small-caps;">being in a bounded region region</span> (`r contained_entity_frames %>% filter(str_detect(frames, 'bounded region')) %>% select(perc) %>% unlist()`%), (iii) <span style="font-variant:small-caps;">explosion</span> (`r contained_entity_frames %>% filter(str_detect(frames, 'explosion')) %>% select(perc) %>% unlist()`%), (iv) <span style="font-variant:small-caps;">fragmentation scenario</span>^[The <span style="font-variant:small-caps;">explosion</span> and <span style="font-variant:small-caps;">fragmentation scenario</span> frames are taken from the *FrameNet* repository; the rest are represented in the *MetaNet* repository.] (`r contained_entity_frames %>% filter(str_detect(frames, 'fragmentation')) %>% select(perc) %>% unlist()`%), and (v) <span style="font-variant:small-caps;">pressure in a container</span> (`r contained_entity_frames %>% filter(str_detect(frames, 'pressure')) %>% select(perc) %>% unlist()`%).
+
+...
+
+The most frequent submapping within the <span style="font-variant:small-caps;">contained entity</span> metaphor (i.e. `r dplyr::filter(contained_entity_submappings, stringr::str_detect(submappings, "fullness"))[["perc"]]`% of the total `r tally(contained_entity_frames, n)[[1]] ` tokens of the metaphor) exploits the Fullness_degree role of the <span style="font-variant:small-caps;">containing</span> frame. In other words, most of the lexical units (LUs) refer to the fullness of the Content inside the Container; in the target domain (TD), fullness of the contained entity is mapped onto the high extent of <span style="font-variant:small-caps;">happiness</span>.
+
+...
+
+The second predominant submapping is evoked by LUs referring to the 'containment' scene (`r dplyr::filter(contained_entity_submappings, stringr::str_detect(submappings, "a contained entity$"))[["perc"]]`%). This is mapped onto the experience/existence of <span style="font-variant:small-caps;">happiness</span> itself.
+
+...
+
+The Fullness of the Content may produce (i) pressure on the Container (`r dplyr::filter(contained_entity_submappings, stringr::str_detect(submappings, "pressing"))[["perc"]]`%) that, when it is uncontrollable, may result in (ii) explosion/breaking out of the Container (`r dplyr::filter(contained_entity_submappings, stringr::str_detect(submappings, "exploding"))[["perc"]]`%). The explosion-related submapping is made up of the <span style = "font-variant:small-caps;">explosion</span> and <span style = "font-variant:small-caps;">fragmentation scenario</span> frames.
+
+...
+
+Table XXX shows that `r filter(contained_entity_lu, Perc_overall == max(Perc_overall))[[4]]`% of the tokens of <span style='font-variant:small-caps;'>happiness is a contained entity</span> metaphor is due to one LU, i.e. *penuh* 'to be full'. This points to a highly-conventionalised property of the metaphor in its linguistic manifestation, given the high frequency of a single LU compared to the others [cf. @gola_taste_2016, p. 53]. In other words, the relative entrenchment of the metaphor arises from a conventionalised expression, such as *penuh* 'to be full'. This is further supported by the metaphor's low percentage of the variation for its linguistic realisations (i.e., `r filter(ttr_metaphor, str_detect(metaphors, "contained entity"))[["type_per_token_lu"]]`%) over its overall token frequency.
+
+## Happiness is a liquid in a container
+
+```{r liquid-containment-data-for-maintext}
+# LIQUID IN A CONTAINER metaphor data
+## frames
+contained_liquid_frames <- happyr::get_frames("liquid in a container", df = happyr::phd_data_metaphor) %>% 
+  mutate(metaphors = 'liquid in a container') %>%
+  arrange(desc(n))
+
+## submappings
+contained_liquid_submappings <- happyr::get_submappings("liquid in a container", df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, "expression"), "expression", "containment"),
+         aspect = if_else(str_detect(submappings, "(high intensity|intensified|intense)"), "increased intensity", aspect),
+         aspect = if_else(str_detect(submappings, "preventing"), "regulation", aspect),
+         aspect = if_else(str_detect(submappings, "accommodating"), "accommodating", aspect))
+
+## aspect summarised
+contained_liquid_aspect <- contained_liquid_submappings %>% 
+  group_by(aspect) %>% 
+  summarise(n = sum(n), 
+            type = sum(type), 
+            perc = sum(perc), 
+            type_perc = sum(type_perc)) %>%
+  arrange(desc(n))
+
+## lexical unit table
+contained_liquid_lu <- happyr::get_lu_table("liquid in a container",
+                                            top_n_only = FALSE,
+                                            df = happyr::phd_data_metaphor)
+
+contained_liquid_lu %>%
+  top_n(10, N) %>%
+  knitr::kable(caption = 'The most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is a liquid in a container</span>.', row.names = TRUE)
+```
+
+
+The submappings within <span style="font-variant:small-caps;">happiness is a liquid in a container</span> metaphor make use of structures from `r dim(contained_liquid_frames)[1] %>% happyr::numbers2words()` source frames that reflect a range of experiential knowledge concerning the behaviour of a contained liquid. They are (i) <span style="font-variant:small-caps;">release liquid</span> (`r contained_liquid_frames %>% filter(str_detect(frames, 'release')) %>% select(perc) %>% unlist()`%), (ii) <span style="font-variant:small-caps;">heating fluid</span> (`r contained_liquid_frames %>% filter(str_detect(frames, 'heating')) %>% select(perc) %>% unlist()`%), (iii) <span style="font-variant:small-caps;">fluid containment</span> (`r contained_liquid_frames %>% filter(str_detect(frames, 'fluid containment')) %>% select(perc) %>% unlist()`%), (iv) <span style="font-variant:small-caps;">fluid motion</span> (`r contained_liquid_frames %>% filter(str_detect(frames, 'fluid motion')) %>% select(perc) %>% unlist()`%), and (v) <span style="font-variant:small-caps;">stop flow of substance</span> (`r contained_liquid_frames %>% filter(str_detect(frames, 'stop flow')) %>% select(perc) %>% unlist()`%). These frames are represented in the *MetaNet* frame repository.
+
+To begin with, the existence of <span style="font-variant:small-caps;">happiness</span> is conceptualised as (i) liquid containment (`r contained_liquid_submappings %>% filter(str_detect(submappings, 'a liquid in a')) %>% select(perc) %>% unlist()`%)^[The percentage of liquid containment submapping does not correspond to the overall percentage of the <span style="font-variant:small-caps;">fluid containment</span> frame because the other portion of the metaphorical expressions evoking <span style="font-variant:small-caps;">fluid containment</span> do not profile the liquid containment *per se*, but also include highlighting the Fluid_level role of the frame. I consider the expressions profiling the Fluid_level role of the frame to evoke a separate submapping, viz. indicating the Fullness of the contained fluid. See the discussion on citation XXX below.] and (ii) fluidic motion of the liquid (`r contained_liquid_submappings %>% filter(str_detect(submappings, 'is a fluidic motion$')) %>% select(perc) %>% unlist()`%). As to the <span style="font-variant:small-caps;">fludic motion</span> submapping, there are two scenarios attested in my sample. First, the liquid may flow inwardly from some source and throughout the body.
+
+...
+
+Next, there are two submappings that focus on the intense experience of <span style="font-variant:small-caps;">happiness</span>. The first submapping is based on the <span style="font-variant:small-caps;">heated fluid</span> frame, namely <span style="font-variant:small-caps;">intensified happiness is heated liquid</span> (`r contained_liquid_submappings %>% filter(str_detect(submappings, 'heated liquid')) %>% select(perc) %>% unlist()`%)).
+
+...
+
+The second submapping is postulated via the profiling of the fullness of the Fluid_level role in the <span style="font-variant:small-caps;">fluid containment</span> frame, namely <span style="font-variant:small-caps;">intense happiness is brimming liquid in a container</span> (`r contained_liquid_submappings %>% filter(str_detect(submappings, 'fullness')) %>% select(perc) %>% unlist()`%).
+
+...
+
+<span style = "font-variant:small-caps;">Release liquid</span> is the most frequently evoked frame in the metaphor (i.e., `r filter(contained_liquid_frames, str_detect(frames, "release"))[["n"]]` tokens) and it has the highest number of LU types compared to the other frames in the metaphor (i.e., `r filter(contained_liquid_frames, str_detect(frames, "release"))[["type"]]` types).
+
+...
+
+Moreover, among the ten most frequent metaphors discussed in this chapter, `r scaps("happiness is a liquid in a container")` is the most diverse linguistically: `r filter(ttr_metaphor, str_detect(metaphors, "liquid in a container"))[["type_per_token_lu"]]`% of its tokens are of different LU types.
+
+
+## Intensity of happiness is quantity of object
+
+```{r quantity-data-for-maintext}
+## submappings
+quantity_submapping <- happyr::get_submappings("quantity of object",
+                                               df = happyr::phd_data_metaphor)
+
+## LU and submappings
+quantity_focus_lu <- happyr::get_lu_table("quantity of object",
+                                          submapping_perc = TRUE,
+                                          incl_submappings = TRUE,
+                                          df = happyr::phd_data_metaphor) %>% 
+  mutate(mapping = if_else(str_detect(Submappings, 'more|adding'), 'more', 'less')) %>%
+  group_by(mapping) %>%
+  mutate(N_by_mapping = sum(N)) %>%
+  ungroup() %>%
+  mutate(perc_lu_by_mapping = round((N/N_by_mapping) * 100, 2)) %>%
+  select(-Submappings)
+
+## aspect
+quantity_focus <- quantity_submapping %>%
+  mutate(mapping = if_else(str_detect(submappings, 'more|adding'), 'more', 'less')) %>% 
+  group_by(mapping) %>% 
+  summarise(n = sum(n), 
+            type = sum(type)) %>% 
+  mutate(perc = round(n/sum(n)*100, 2), 
+         type_perc = round(type/sum(type)*100, 2))
+```
+
+
+
+Overall, `r filter(quantity_focus, mapping == "more")[["perc"]]`% of the total `r tally(quantity_focus, n)[[1]]` tokens of the metaphorical expressions profile the 'more quantity' end of the entire <span style="font-variant:small-caps;">quantity</span> frame.
+
+...
+
+From the linguistic realisation point of view, the `r scaps('quantity')` metaphor can also be considered less diverse. Only `r filter(ttr_metaphor, str_detect(metaphors, "quantity of object"))[["type_per_token_lu"]]`% out of its `r tally(quantity_focus, n)[[1]]` tokens are expressed by different LU types. Among the predominant LUs include *tambahkan* 'to add sth.', *banyak* 'many/much', and *berlebihan* 'excessive'.
+
+## Happiness is an (un)veiled object
+
+```{r unveiled-object-data-for-maintext}
+# frames
+concealed_frames <- happyr::get_frames("veiled", df = happyr::phd_data_metaphor)
+
+# submapping
+concealed_submapping <- happyr::get_submappings("veiled", df = happyr::phd_data_metaphor)
+
+# tokens concerning hiding and abilitative modal
+hiding_tokens <- 1:filter(concealed_submapping, str_detect(submappings, "regulating"))[["n"]]
+tokens_without_abilitative <- c(3, 10, 19, 21)
+tokens_with_abilitative <- setdiff(hiding_tokens, tokens_without_abilitative)
+tokens_with_abilitative_positive <- 15
+tokens_with_abilitative_negated <- setdiff(tokens_with_abilitative, tokens_with_abilitative_positive)
+tokens_without_abilitative_negated <- c(10, 21)
+
+# lexical unit
+concealed_lu <- happyr::get_lu_table("veiled", top_n_only = TRUE, df = happyr::phd_data_metaphor)
+concealed_lu %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking <span style = "font-variant:small-caps;">happiness is an (un)veiled object</span>.', row.names = TRUE)
+```
+
+These two aspects are captured via three submappings. The most frequent one is the `r scaps('existence of happiness is visibility of an object')` (`r filter(concealed_submapping, str_detect(submappings, "visibility"))[["perc"]]`%), based on the <span style='font-variant:small-caps;'>seeing</span> frame
+
+...
+
+The second submapping is based on the `r scaps('cause to see')` frame, namely `r scaps('expressing happiness is showing an object')` (`r filter(concealed_submapping, str_detect(submappings, "showing"))[["perc"]]`%).
+
+...
+
+The third submapping is `r scaps('regulating happiness is hiding an object')` (`r filter(concealed_submapping, str_detect(submappings, "hiding"))[["perc"]]`%). This mapping is expressed by lexical units (LUs) from the `r scaps('visual obstruction')` frame. In `r numbers2words(length(tokens_with_abilitative))` tokens of the total `r filter(concealed_submapping, str_detect(submappings, "regulating"))[["n"]]` citations of this submapping, the LUs co-occur with abilitative modal auxiliaries (i.e. *dapat/bisa* 'can', *mampu/sanggup* 'be able to'). Yet, `r numbers2words(length(tokens_with_abilitative_negated))` of these `r numbers2words(length(tokens_with_abilitative))` tokens are negated. Overall, including tokens without the abilitative modals, `r round((length(tokens_without_abilitative_negated) + length(tokens_with_abilitative_negated))/length(hiding_tokens) * 100, 2)`% citations of the `r scaps('regulating happiness is hiding an object')` are negated. This points to the focus on the *inability* to *conceal* the emotion.
+
+...
+
+Linguistically, `r scaps("happiness is an (un)veiled object")` metaphor also has a low percentage of variation for the evoking LUs (`r happyr::get_meta_freq_profiles('veiled', type_per_token_lu, df = ttr_metaphor)[[2]]`%). It is predominantly evoked by *lihat* 'to see/look at', *terlihat*, 'to be visible', *(t/n)ampak* 'to be visible', and *tunjukkan* 'to show'
+
+## Happiness is a submerged entity
+
+```{r submerged-entity-data-for-maintext}
+## submappings
+submerged_submappings <- happyr::get_submappings("submerged", df = happyr::phd_data_metaphor)
+
+## lexical unit table
+submerged_lu <- happyr::get_lu_table("submerged", df = happyr::phd_data_metaphor)
+submerged_lu %>%
+  knitr::kable(caption = 'Top-10 most frequent lexical units evoking the <span style = "font-variant:small-caps;">happiness is a submerged entity</span>.', row.names = TRUE)
+```
+
+Linguistically, the metaphor is proportionally less varied in its lexical realisation (`r happyr::get_meta_freq_profiles('submerged', type_per_token_lu, df = ttr_metaphor)[[2]]`% of lexical variation), given its token frequency. The high token frequency of the metaphor is accounted for mostly by the first three LUs in [Table \@ref(tab:lu-submerged-entity)](#lu-submerged-entity), taking up `r sum(happyr::get_cic_meta_lu("submerged", ttr_metaphor)[["Perc_overall"]])`% of the metaphor's token frequency.
+
+...
+
+In general, all the metaphorical expressions of <span style='font-variant:small-caps;'>happiness is a submerged entity</span> indicate the manner through which <span style='font-variant:small-caps;'>happiness</span> may exist. Namely, existence of <span style='font-variant:small-caps;'>happiness</span> is understood as a surfacing or outward motion of an Entity, be it (i) naturally emerging (`r filter(submerged_submappings, !str_detect(submappings, 'cause'))[["perc"]]`%) or (ii) caused to emerge by some agent (`r filter(submerged_submappings, str_detect(submappings, 'cause'))[["perc"]]`%).
+
+
+## Happiness is food
+
+```{r food-data-for-maintext}
+## submappings
+food_submappings <- happyr::get_submappings('food', df = happyr::phd_data_metaphor)
+
+# frames
+food_frames <- happyr::get_frames("food", df = happyr::phd_data_metaphor)
+
+# LU by frames
+food_lu_frames <- happyr::get_lu_table("food", df = happyr::phd_data_metaphor)
+
+# LU by submappings
+food_lu_submappings <- happyr::get_lu_submappings_table("food", df = happyr::phd_data_metaphor)
+
+# frames and submappings
+food_frames_submappings <- happyr::phd_data_metaphor %>% 
+  filter(metaphors == 'happiness is food') %>% 
+  count(source_frames, submappings) %>% 
+  ungroup() %>% 
+  group_by(source_frames) %>% 
+  mutate(perc = round(n/sum(n) * 100, 2)) %>% 
+  rename(frames = source_frames) %>% 
+  ungroup()
+
+## LU table
+happyr::get_lu_table("food", df = happyr::phd_data_metaphor) %>%
+  knitr::kable(caption = 'All lexical units evoking <span style = "font-variant:small-caps;">happiness is food</span>.', row.names = TRUE)
+```
+
+<span style='font-variant:small-caps;'>Happiness is food</span> metaphor is based on several frames related to gastronomical experience. These include the <span style='font-variant:small-caps'>food</span> frame itself (`r food_frames %>% filter(str_detect(frames, 'food$')) %>% .$perc`%), <span style='font-variant:small-caps;'>ingestion</span> (`r food_frames %>% filter(str_detect(frames, 'ingestion')) %>% .$perc`%), <span style='font-variant:small-caps'>food preparation</span>^[The entry for <span style='font-variant:small-caps;'>food preparation</span> frame is not represented in the *MetaNet* frame repository, but is included as the source frame label for a metaphorical entailment of the <span style='font-variant:small-caps;'>ideas are foods</span> metaphor, i.e. <span style='font-variant:small-caps;'>preparing ideas to be understood is food preparation</span> (cf. https://metaphor.icsi.berkeley.edu/pub/en/index.php/Metaphor:PREPARING_IDEAS_TO_BE_UNDERSTOOD_IS_FOOD_PREPARATION). A related frame whose entry is available in the *FrameNet* frame repository is <span style='font-variant:small-caps;'>cooking_creation</span>.] (`r food_frames %>% filter(str_detect(frames, 'preparation')) %>% .$perc`%), and, most predominantly, <span style='font-variant:small-caps;'>taste</span> (`r food_frames %>% filter(str_detect(frames, 'taste')) %>% .$perc`%).
+
+...
+
+Most of the lexical units (LUs) in this frame profiles the serving stage of the food preparation (`r food_frames_submappings %>% filter(str_detect(submappings, 'serving')) %>% .$perc`%)
+
+...
+
+This is indicated especially by a high proportion of one LU, namely *nikmati* 'to taste-while-enjoying', taking up `r food_lu_submappings %>% filter(str_detect(lu, "nikmati$")) %>% .$perc_expr_overall`% of all tokens of the metaphor. 
+
+## The co-occurrence of body-part terms and the metaphors
+
+```{r bar-plot, fig.asp = 0.7}
+happyr::plot_body_part(df = happyr::phd_data_metaphor)
+```
+
+```{r body-metaphors-frequency-table}
+# body-part gloss
+bp_gloss <- tibble(gloss = c('chest/bosom', 'self', 'liver', 'eyes', 'face', 'body', 'face', 'face', 'deepest part of the heart', 'lips', 'mouth', 'body; bodily'), body_part_terms = c('dada', 'diri', 'hati', 'mata', 'muka', 'tubuh', 'wajah', 'paras', 'lubuk kalbu', 'bibir', 'mulut', 'jasmani'))
+
+# generate the table
+happyr::phd_data_metaphor %>% 
+  filter(body_part_inclusion %in% c('y')) %>% 
+  count(body_part_terms, metaphors) %>% 
+  arrange(desc(n)) %>% 
+  ungroup() %>% 
+  left_join(bp_gloss, by = 'body_part_terms') %>%
+  select(metaphors, body_part_terms, gloss, n) %>% 
+  mutate(metaphors = happyr::scaps(metaphors), 
+         body_part_terms = paste("*", body_part_terms, "* '", gloss, "'", sep = "")) %>%
+  rename(Body_parts = body_part_terms, Metaphors = metaphors, N = n) %>%
+  select(-gloss) %>%
+  top_n(10, N) %>%
+  knitr::kable(caption = 'The ten most frequent <span style="font-variant:small-caps;">Body-part</span>`*`<span style="font-variant:small-caps;">Metaphors</span> co-occurrence for <span style="font-variant:small-caps;">Happiness</span> in Indonesian.', row.names = TRUE)
+```
+
+
+# Codes for Chapter 6 - Productive and Creative Metaphors
+
+## Productive metaphors
+
+```{r top-10-productive-metaphors}
+productive_metaphor <- ttr_metaphor %>% 
+  arrange(desc(type_lu)) %>% 
+  top_n(10, type_lu)
+
+productive_metaphor %>% 
+select(Metaphors = metaphors,
+       Token = token,
+       `%Token` = perc_token,
+       Type = type_lu,
+       `%Type` = perc_type_lu) %>% 
+  knitr::kable(caption = 'Top-10 metaphors sorted on their type frequency.', row.names = TRUE)
+```
+
+[Table \@ref(tab:top-type-ttr)](#top-type-ttr) shows the reverse ranking of the top-10 metaphors with high type frequency according to their type-per-token ratio.
+
+```{r top-type-ttr}
+productive_metaphor %>% 
+  arrange(desc(type_per_token_lu)) %>% 
+  select(Metaphors = metaphors,
+         Token = token,
+         Type = type_lu,
+         `Type/token ratio (in %)` = type_per_token_lu) %>% 
+  knitr::kable(caption = 'Metaphors with high type frequency ordered according their Type/Token Ratio (TTR).', row.names = TRUE)
+```
+
+### Happiness is light
+
+```{r happiness-is-light-data}
+# submapping
+light_submapping <- happyr::get_submappings("light", df = happyr::phd_data_metaphor)
+
+# submapping generalised/schematised: (i) emission of light and (ii) darkening
+light_submapping_generalised <- light_submapping %>%
+  mutate(generalised_submappings = if_else(str_detect(submappings, 'darkening'), 
+                                           'darkening_light', 
+                                           'emitting_light')) %>%
+  group_by(generalised_submappings) %>% 
+  summarise(n = sum(n), 
+            type_generalised = sum(type)) %>%
+  ungroup() %>%
+  mutate(perc_type_generalised = round(type_generalised/sum(type_generalised) * 100, 2), 
+         perc_generalised = round(n/sum(n) * 100, 2))
+
+# lexical unit and their "emitting" semantics
+light_lu_emitting_semantics <- happyr::phd_data_metaphor %>% 
+  filter(str_detect(metaphors, "light")) %>% 
+  select(lu)
+
+dim_light <- c('pudar', 'kelabu')
+brief_light <- c('bayangan', 'membayang', 'terbersit', 'sebersit', 'secercah', 'sekilas', 'terbayang')
+bright_light <- c('berkilauan', 'bersinar terang', 'mentari', 'semarakkan', 'semburatkan', 'sinarkan', 'terangi')
+
+light_lu_emitting_semantics <- light_lu_emitting_semantics %>%
+  mutate(luminousity = if_else(lu %in% dim_light, 'darkening', 'neutral'),
+         luminousity = if_else(lu %in% brief_light, 'brief_light', luminousity),
+         luminousity = if_else(lu %in% bright_light, 'shining_light', luminousity))
+
+# tebersit -> radiates suddenly vaguely
+# sebersit -> radiates light in small amount
+# secercah -> small amount of light
+
+# lexical unit table
+light_lu_table <- happyr::get_lu_table("light$", 
+                                    top_n_only = TRUE,
+                                    df = happyr::phd_data_metaphor)
+
+# number of hapax LU
+light_lu_length <- dim(light_lu_table)[1]
+light_hapax_length <- dim(filter(light_lu_table, N == 1))[1]
+
+# print the lu table
+light_lu_table %>%
+  knitr::kable(caption = 'Lexical units evoking <span style = "font-variant:small-caps;">happiness is light</span>', row.names = TRUE)
+
+
+```
+
+Most of the LUs (`r round((light_hapax_length/light_lu_length) * 100, 2)`% of the total `r light_lu_length` types) are singletons (i.e., occurring only once), which are also termed as *hapax legomena* or *hapaxes* [@hilpert_construction_2014-1, p. 82].
+
+### Happiness is an imperilled entity
+
+```{r happiness-is-an-imperilled-entity-data}
+# submappings
+endangered_submapping <- happyr::get_submappings("imperilled", df = happyr::phd_data_metaphor) %>% 
+  mutate(submappings = str_replace(submappings, "destroyed object", "harmed entity"))
+
+# frames
+endangered_frame <- happyr::get_frames("imperilled", df = happyr::phd_data_metaphor)
+
+# lexical units table
+endangered_lu <- happyr::get_lu_table("imperilled", top_n_only = TRUE, df = happyr::phd_data_metaphor)
+
+endangered_lu_hapax <- dim(filter(endangered_lu, N == 1L))[1]
+
+endangered_lu %>%
+  knitr::kable(caption = 'Lexical units evoking <span style = "font-variant:small-caps;">happiness is an imperilled entity</span>', row.names = TRUE)
+```
+
+The `r happyr::scaps("happiness is an imperilled entity")` makes use of elements from several frames that broadly belong to the `r happyr::scaps("harm")` frame family [cf. @dodge_deep_2016, pp. 282-286] (see also discussion in `r section` XXX below). These frames include `r happyr::scaps("destroying")` (`r endangered_frame %>% filter(str_detect(frames, 'destroy')) %>% .$perc`%), `r happyr::scaps("protecting")` (`r endangered_frame %>% filter(str_detect(frames, 'protecting')) %>% .$perc`%), `r happyr::scaps("danger")` (`r endangered_frame %>% filter(str_detect(frames, 'danger')) %>% .$perc`%), `r happyr::scaps("rejuvenation")` (`r endangered_frame %>% filter(str_detect(frames, 'rejuve')) %>% .$perc`%), and `r happyr::scaps("impact")` (`r endangered_frame %>% filter(str_detect(frames, 'impact')) %>% .$perc`%). These frames are available in the *MetaNet* frame repository, except for `r happyr::scaps("rejuvenation")` which is taken from the *FrameNet* repository.
+
+...
+
+Inference from the constituting frames contributes quite rich metaphorical construal related to the above main theme. The predominant submapping, namely `r happyr::scaps("negatively affecting happiness is harming an entity")` (`r endangered_submapping %>% filter(perc == max(perc)) %>% .$perc`%) makes use of the Harmful_effect_process role of the `r happyr::scaps("physical harm")` frame.
+
+...
+
+Further inference from this `r happyr::scaps("harm")` metaphor model is that the results of the harmful action can be a complete dysfunction or undesirable condition of the entity (e.g., being destroyed). This knowledge is carried over to the target domain to conceptualise the complete ceasing of `r happyr::scaps("happiness")`. Hence, `r endangered_submapping %>% filter(str_detect(submappings, '^end of')) %>% .[,1] %>% unlist() %>% unname() %>% happyr::scaps()` (`r endangered_submapping %>% filter(str_detect(submappings, 'end of')) %>% .$perc`%) submapping.
+
+...
+
+The twists of these negative consequences may include two scenarios that can be recast as two submappings. The first is `r happyr::scaps("maintaining happiness is protecting an asset")` (`r endangered_submapping %>% filter(str_detect(submappings, '^maintain')) %>% .$perc`%); the second is `r happyr::scaps("restoring happiness is repairing a harmed entity")` (`r endangered_submapping %>% filter(str_detect(submappings, '^restoring')) %>% .$perc`%). These scenarios suggest the importance for the experiencer to look after and maintain h(is/er) well-being.
+
+...
+
+Most of the LUs for `r happyr::scaps("happiness is an imperilled entity")` occur only once (`r round(endangered_lu_hapax/dim(endangered_lu)[1] * 100, 2)`% of the total `r dim(endangered_lu)[1]` LU types).
+
+## Creative metaphors
+
+```{r top-type-token-ratio-metaphors}
+less_thanthree_metaphors <- ttr_metaphor %>% 
+  filter(token <= 2L) %>% 
+  .$metaphors
+
+min_freq <- 3L
+
+creative_metaphors <- happyr::get_creative_metaphors(ttr_metaphor)
+
+creative_metaphors %>%
+  mutate(metaphors = happyr::scaps(metaphors)) %>% 
+  select(Metaphors = metaphors,
+         Token = token,
+         Type = type_lu,
+         `Type/token ratio (in%)` = type_per_token_lu) %>% 
+  knitr::kable(caption = paste('Top-10 lexically varied metaphors sorted based on the TTR value and occurring at least ', happyr::numbers2words(min_freq), ' tokens.', sep = ""), row.names = TRUE)
+```
+
+### Happiness is a harmful agent
+
+```{r happiness-is-a-harmful-agent-data}
+# submappings
+harmful_submappings <- happyr::get_submappings("harmful agent", df = happyr::phd_data_metaphor)
+
+# frames
+harmful_frames <- happyr::get_frames("harmful agent", df = happyr::phd_data_metaphor)
+
+harmful_lu <- happyr::get_lu_table("harmful agent", df = happyr::phd_data_metaphor)
+
+harmful_lu %>% 
+  knitr::kable(caption = paste("Lexical units evoking ", happyr::scaps("happiness is a harmful agent"), sep = ""), row.names = TRUE)
+```
+
+The predominant submapping is `r happyr::scaps("experiencing intense emotion is being harmed")` or `r happyr::scaps("strong emotional effect is physical harm")` (`r filter(harmful_submappings, str_detect(submappings, "being harmed"))[["perc"]]`% of the total `r sum(harmful_frames$n)` tokens of the metaphor).
+
+### Negative construal of `r happyr::scaps("happiness")`
+
+#### Happiness is an adversary
+
+```{r happiness-is-an-adversary}
+# data frame on the opponent type in the adversary metaphor
+adversary_df <- tribble(
+  ~opponent, ~opponent_lu, ~m_expr,
+  #--/--
+   "self", "pers_pronoun", "diuji dengan NP",
+   "self_impl", NA, "diuji dengan NP",
+   "abstract_states_impl", NA, "dominasi NP",
+   "abstract_entity", "pramuka", "kalah dengan NP",
+   "self", "pers_pronoun", "kelemahan terhadap NP",
+   "concrete", "kondom", "melawan NP",
+   "self", "proper_name", "menaklukkan rayuan NP",
+   "self_impl", NA, "menekan NP",
+   "self_impl", NA, "menentang NP",
+   "self", "pers_pronoun", "menghadapi NP",
+   "self_impl", NA, "NP adalah musuh",
+   "self_impl", NA, "NP adalah ujian",
+   "abstract_entity", "kehidupan", "NP ancaman kepada kehidupan",
+   "abstract_states", "kegetiran", "NP dan kegetiran berebut tempat dalam jiwa",
+   "abstract_states", "kepahitan hidup", "NP dikalahkan oleh kepahitan hidup",
+   "abstract_states_impl", NA, "NP mendominasi",
+   "abstract_states", "kerendahan hati", "NP menekuk kerendahan hati",
+   "abstract_states", "keraguan", "NP mengalahkan keraguan",
+   "abstract_states", "rasa lelah", "NP mengatasi rasa lelah",
+   "self", "pers_pronoun", "NP X hadapi",
+   "abstract_states", "kelelahan", "NP yang mengatasi kelelahan",
+   "abstract_states", "kebutuhan", "pertentangan antara NP dan kebutuhan",
+   "self", "orang", "ujian NP",
+   "self_impl", "energy", "NP menyedot energi"
+)
+
+# data only for self-opponent of the emotion
+self_opponent <- adversary_df %>% 
+  filter(str_detect(opponent, 'self')) %>% 
+  count(opponent) %>% 
+  mutate(perc = round(n/sum(n)*100, 2))
+
+# opponent types all
+opponent <- adversary_df %>% 
+  count(opponent) %>% 
+  arrange(desc(n)) %>% 
+  mutate(generic_opponent = if_else(str_detect(opponent, 'abstract'), 
+                                    'abstract_entity/states', 'self'), 
+         generic_opponent = if_else(str_detect(opponent, 'concrete'), 
+                                    'other_concrete_entity', generic_opponent)) %>% 
+  group_by(generic_opponent) %>% 
+  summarise(n = sum(n)) %>%
+  mutate(perc = round(n/sum(n)*100, 2))
+
+# opponent types "self" vs "others"
+opponent2 <- opponent %>% 
+  mutate(generic_opponent = replace(generic_opponent, !str_detect(generic_opponent, 'self'), 'non-self')) %>% 
+  group_by(generic_opponent) %>% 
+  summarise(n = sum(n)) %>% 
+  mutate(perc = round(n/sum(n)*100, 2))
+
+# print the LU for the adversary metaphor
+happyr::get_lu_table("adversary", df = happyr::phd_data_metaphor) %>% 
+  knitr::kable(caption = paste("Lexical units evoking ", happyr::scaps("happiness is an adversary"), sep = ""), row.names = TRUE)
+```
+
+However, things are not always as neat as in the theory when looking at the real usage data. From `r sum(happyr::get_lu_table("adversary", df = happyr::phd_data_metaphor)[["N"]])` tokens of <span style="font-variant:small-caps;">happiness is an adversary</span>, `r if_else(filter(opponent2, generic_opponent == "self")[["perc"]] == 50, "half", paste(as.character(filter(opponent2, generic_opponent == "self")[["perc"]]), "%", sep = ""))` of the tokens indicate that the opponent can indeed be understood as the Experiencer.
+
+#### Happiness is a deceiver
+
+```{r happiness-is-a-deceiver-data}
+# print the LU
+happyr::get_lu_table("deceiver", df = happyr::phd_data_metaphor) %>% 
+  knitr::kable(caption = paste("All lexical units evoking ", happyr::scaps("happiness is a deceiver"), sep = ""), row.names = TRUE)
+```
+
+
+#### Happiness is drugs
+
+- No inline computation code is needed
+
+#### Happiness is impediment to motion
+
+```{r motion-impediments-data}
+# submapping
+motion_imped_submappings <- happyr::get_submappings("impediment to motion$", df = happyr::phd_data_metaphor)
+```
+
+All these inferences express the submapping `r happyr::scaps("happiness/being happy is being restrained")`, which is the most frequent of all cases (`r filter(motion_imped_submappings, str_detect(submappings, "restrained"))[["perc"]]`% of the total tokens of the metaphor).
+
+...
+
+The other expressions evoke a submapping based on the `r happyr::scaps("burden")` frame (`r filter(motion_imped_submappings, str_detect(submappings, "burden"))[["perc"]]`%) and the `r happyr::scaps("motion-affecting properties of the landscape")` frame (`r filter(motion_imped_submappings, str_detect(submappings, "impeding"))[["perc"]]`%), the latter of which is the sister frame of the `r happyr::scaps("motion-affecting objects")` frame.
+
+### Positive phenomenology of `r happyr::scaps("happiness")`
+
+#### Happiness is being soaked
+
+```{r being-soaked-data}
+happyr::get_lu_table("soaked", df = happyr::phd_data_metaphor) %>% 
+  knitr::kable(caption = paste("All lexical units evoking ", happyr::scaps("happiness is being soaked"), sep = ""), row.names = TRUE)
+```
+
+#### Happiness is a treatment tool
+
+- no inline computation code is needed
+
+#### Happiness is a resource
+
+```{r happiness-is-a-resource-data}
+# submappings
+resource_submappings <- happyr::get_submappings("resource$", df = happyr::phd_data_metaphor)
+
+# lexical unit table
+resource_lu <- happyr::get_lu_table("resource$", df = happyr::phd_data_metaphor)
+
+# print with `kable()`
+resource_lu %>% 
+  knitr::kable(caption = paste("All lexical units evoking ", happyr::scaps("happiness is a resource"), sep = ""), row.names = TRUE)
+```
+
+### Other creative metaphors
+
+#### Happiness is a moved entity
+
+...
+
+In that forced movement scenario, the `r happyr::scaps("happiness is a moved entity")` metaphor is motivated by the role-mapping of the `r happyr::scaps("happiness")` noun onto the Mover role. There are only `r happyr::get_frames("moved entity$", df = happyr::phd_data_metaphor) %>% .$n %>% happyr::numbers2words()` tokens for this mapping.
+
+...
+
+#### Happiness is an accompanied object
+
+...
+
+There are only `r ttr_metaphor %>% filter(str_detect(metaphors, "accompanied object$")) %>% .$token %>% happyr::numbers2words()` tokens for `r scaps("happiness is an accompanied object")`.
+
+# Codes for Chapter 7 - Distinctive metaphors for `r happyr::scaps("happiness")` near-synonyms in Indonesian
+
+## Multiple distinctive collexeme analysis in action
+
+```{r mdca-metaphor-synonyms}
+# MDCA for metaphor * synonyms with concise output
+mdca_res <- happyr::mdca(df = happyr::phd_data_metaphor, concise_output = TRUE)
+
+# MDCA for metaphor * synonyms with full output (i.e., include exp_probability, synonyms frequency); this is for the purpose of illustrating the MDCA in the chapter
+mdca_res_full <- happyr::mdca(df = happyr::phd_data_metaphor, concise_output = FALSE)
+
+# gloss table for synonyms
+syn_gloss <- tribble(~synonyms, ~gloss, ~form, ~source,
+                     "riang", "very happy, joyous, glad", "root", "S&ST.2004.p.830",
+                     "gembira", "excited, enthusiastic, exuberant, ...", "root", "S&ST.2004.p.311",
+                     "ceria", "pure, clean, clear; cheerful", "root", "S&ST.2004.p.198",
+                     "bahagia", "(peaceful and) happy; happiness; luck(y), good fortune; welfare", "root", "S&ST.2004.p.75",
+                     "senang", "happy, to feel well, contented, satisfied", "root","S&ST.2004.p.909",
+                     "keriangan", "cheer(fulness), happiness, joy", "nominalised", "S&ST.2004.p.830",
+                     "keceriaan", "purity; cheerfulness", "nominalised","S&ST.2004.p.198",
+                     "kebahagiaan", "happiness, prosperity and contentment", "nominalised","S&ST.2004.p.75",
+                     "kegembiraan", "joy, cheerfulness, high spirits", "nominalised","S&ST.2004.p.311",
+                     "kesenangan", "pleasure, happiness, enjoyment, ...", "nominalised", "S&ST.2004.p.909") %>%
+  select(synonyms, form, gloss, source) %>%
+  arrange(desc(form), synonyms)
+```
+
+```{r mdca-collocates-synonyms}
+# mdca for window-span collocational data
+mdca_colloc <- happyr::mdca(df = happyr::colloc_input_data, coll_var = "collocates")
+```
+
+```{r illustration-data-for-mdca}
+# retrieve the example table
+example_df <- mdca_res %>% 
+  filter(str_detect(metaphors, "desired")) %>% 
+  select(-metaphors) %>% 
+  arrange(desc(assocstr))
+
+# count the freq of the metaphors
+metaphor_token <- dplyr::count(happyr::phd_data_metaphor, metaphors, sort = TRUE)
+
+# count the freq of the synonyms
+synonym_token <- dplyr::count(happyr::phd_data_metaphor, synonyms, sort = TRUE)
+
+# input data
+input_snippet <- mdca_res_full %>% 
+  filter(str_detect(metaphors, "desired")) %>% 
+  select(synonyms, n, cxn_sum) %>% 
+  mutate(others = cxn_sum - n) %>% 
+  select(synonyms, n, others, total = cxn_sum)
+
+input_snippet <- input_snippet %>%
+  bind_rows(input_snippet %>% 
+              summarise_if(is.numeric, sum) %>% 
+              mutate(synonyms = "total") %>% 
+              select(synonyms, everything()))
+
+# tokens for the examples in the text
+obs_bhg <- filter(example_df, synonyms == "kebahagiaan")[["n"]]
+sum_bhg <- filter(synonym_token, synonyms == "kebahagiaan")[["n"]]
+exp_bhg <- filter(example_df, synonyms == "kebahagiaan")[["exp"]]
+meta_destination <- filter(metaphor_token, str_detect(metaphors, "desired goal"))[["n"]]
+exp_prob <- exp_bhg/meta_destination
+```
+
+```{r example-data-print}
+# print out the results for example with 'DESIRED GOAL/DESTINATION'
+example_df %>%
+  mutate(gloss = c("happiness", 
+                   "pleasure", 
+                   "(peaceful and) happy; happiness", 
+                   "very happy, joyous", 
+                   "cheerful; lit. pure, clean", 
+                   "happy, to feel well, contented", 
+                   "excited, enthusiastic", 
+                   "cheer(fulness)", 
+                   "purity; cheerfulness", 
+                   "joy, cheerfulness"),
+         synonyms = paste("*", synonyms, "*", sep = ""),
+         exp = round(exp, 3L)) %>%
+  select(synonyms, gloss, everything()) %>%
+  as.data.frame() %>%
+  knitr::kable(caption = '*Observed* frequency (`n`), *expected* frequency (`exp`), and *Association Strength* (`assocstr`) for <span style="font-variant:small-caps";>happiness is a desired goal/destination</span> across the synonyms.', row.names = TRUE)
+```
+
+The observed co-occurrence frequency between *kebahagiaan* and metaphorical patterns evoking the `r happyr::scaps('happiness is a desired goal/destination')` is `r obs_bhg` tokens. In addition to this observed co-occurrence frequency, one also needs the *expected frequency* for the co-occurrence between `r happyr::scaps('happiness is a desired goal/destination')` and *kebahagiaan* (column "exp" in [Table \@ref(tab:example-data-print)](#example-data-print)). The expected frequency (for a metaphor and a synonym) represents the frequency that one would expect under the null-hypothesis that the proportion of the metaphor were equally distributed across all synonyms under study; in other words, the null-hypothesis states that there are no distributional differences for the metaphor with each synonym [cf. @levshina_how_2015, pp. 210-211]. The expected frequency for our example is arrived at by multiplying (i) the total frequency of *kebahagiaan* in the sample, i.e., `r sum_bhg`, with (ii) the total frequency of `r happyr::scaps('happiness is a desired goal/destination')` occurring with any synonyms in the sample, i.e., `r meta_destination`, then (iii) dividing the results with the total metaphorical tokens in the sample, i.e., `r dim(happyr::phd_data_metaphor)[1]`; hence (`r sum_bhg``*``r meta_destination`)/`r dim(happyr::phd_data_metaphor)[1]` = `r exp_bhg`. 
+
+Difference between the observed and expected frequencies allows us to determine the direction of the association between the co-occurring items. The association can be (i) *positive*, if the observed frequency exceeds the expected frequency, or (ii) *negative*, if the observed frequency is below the expected frequency. The comparison between the expected and the observed frequency in [Table \@ref(tab:example-data-print)](#example-data-print) for `r scaps('happiness is a desired goal/destination')` with *kebahagiaan* indicates positive association, or *attraction*, between the metaphor and the synonym since the observed frequency of `r obs_bhg` is higher than the expected frequency of `r exp_bhg` [cf. @hilpert_distinctive_2006, p. 247]. Additional value required by the Binomial Test in MDCA is the *a priori* probability that if *kebahagiaan* is used metaphorically it will occur in metaphorical patterns evoking `r scaps('happiness is a desired goal/destination')`. This probability is calculated by dividing (i) the expected frequency of *kebahagiaan* with the metaphor (i.e., `r exp_bhg`) against (ii) the total frequency of the metaphor in the sample (i.e., `r meta_destination`), hence (`r exp_bhg`/`r meta_destination`) equals `r exp_prob` [@hilpert_distinctive_2006, p. 247].
+
+The observed co-occurrence frequency, the total frequency of the metaphor, and the *a priori* probability then become the inputs for the one-tailed Binomial Test implemented in MDCA. Given our example, the Binomial Test will determine the Binomial *p*-value indicating the probability that the observed co-occurrence frequency of `r obs_bhg`, or even more often, for *kebahagiaan* and `r scaps('happiness is a desired goal/destination')` would have come about by chance, given the null-hypothesis of equal distribution for a metaphor with all synonyms. The code-chunk below shows the R code to perform one-tailed Binomial Test for our example:
+
+```{r binom-test-example, echo = TRUE}
+# For one-tailed test, the *alternative* argument in the code is set to 'greater' 
+# when the co-occ.freq is higher than expected; it set to "less" when otherwise.
+
+binom.test(x = 125, # co-occ.freq between "kebahagiaan" and the "desired goal" metaphor
+           n = 293, # total tokens of the "desired goal" metaphor
+           p = 0.1882903, # a priori probability
+           alternative = "greater" 
+           )$p.value # retrieve only the binomial p-value
+```
+
+The resulting *p*~Binomial~-value here is small (i.e., `r binom.test(obs_bhg, meta_destination, exp_prob, 'greater')$p.value %>% format(scientific = TRUE)`)^[The alternative representation of this *p*-value is `r binom.test(obs_bhg, meta_destination, exp_prob, 'greater')$p.value %>% format(scientific = FALSE)`.]. This value indicates that there is a very low probability that we observe this co-occurrence distribution of `r obs_bhg` tokens, or even more, between *kebahagiaan* and `r happyr::scaps('happiness is a desired goal/destination')` *if* there is *no*/*neutral* association between them. Similar calculation as above is done for the co-occurrence frequencies of each synonyms with the metaphors. The code-chunk below illustrates the computation of the *p*~Binomial~-value when the co-occurrence frequency is less than expected, as in between *kegembiraan* 'joy' and the `r happyr::scaps('happiness is a desired goal/destination')` metaphor (cf. [Table \@ref(tab:example-data-print)](#example-data-print)).
+
+```{r binom-test-example-kegembiraan, echo = TRUE}
+binom.test(x = 6, # co-occ.freq between "kegembiraan" and the "desired goal" metaphor
+           n = 293, # total tokens of the "desired goal" metaphor
+           p = 0.184442, # a priori probability
+           alternative = "less" 
+           )$p.value # retrieve only the binomial p-value
+```
+
+As in most Collostructional Analysis studies, the *p*-values of the Binomial Test in this case are used directly as the measure for association strength. The small *p*~Binomial~-value and the positive deviation of the observed frequency from the expected one for our example with *kebahagiaan* 'happiness' indicates significantly high degree of association (viz. *attraction*) between *kebahagiaan* and `r happyr::scaps('happiness is a desired goal/destination')`. For expository reason, Collostructional Analysis log~10~-transforms the *p*~Binomial~-value into the so-called *Coll(ostruction) Str(ength)* value; in this thesis, it is referred to as the *Assoc(iation) Str(ength)* value (cf. the `"assocstr"` column in [Table \@ref(tab:example-data-print)](#example-data-print)) [@stefanowitsch_covarying_2005, p. 7]. Positive or negative signs are set in the *AssocStr* values to indicate the direction of association. Positive *AssocStr* values indicate *attraction* (i.e., the observed co-occurrence frequency is higher than the expected frequency); it is derived from the *negative* log~10~-transformed *p*~Binomial~-value, as shown below for the *kebahagiaan* 'happiness' example.
+
+```{r log10-kebahagiaan, echo = TRUE}
+# get the p-value of the Binomial Test
+p_binomial <- binom.test(x = 125, n = 293, p = 0.1882903, alternative = "greater")$p.value
+
+# negative log10 for the p-binom for the *kebahagiaan* data
+-log10(x = p_binomial)
+```
+
+Meanwhile, negative *AssocStr* values indicate *repulsion* (i.e., the observed co-occurrence frequency is less than expected); it is derived from the *positive* log~10~-transformed *p*~Binomial~-value, as shown below for the *kegembiraan* 'joy' example.
+
+```{r log10-kegembiraan, echo = TRUE}
+# get the p-value of the Binomial Test
+p_binomial <- binom.test(x = 6, n = 293, p = 0.184442, alternative = "less")$p.value
+
+# positive log10 for the p-binom for the *kegembiraan* data
+log10(x = p_binomial)
+```
+
+
+One can notice from [Table \@ref(tab:example-data-print)](#example-data-print) that `r scaps('happiness is a desired goal/destination')` is also significantly distinctive to *kesenangan* 'pleasure', though in a lower degree compared to *kebahagiaan*, as reflected in the AssocStr values between the two; qualitatively, it will be shown that *kesenangan* and *kebahagiaan* differ in relation to the preferred submappings of the `r scaps('happiness is a desired goal/destination')` (cf. `r section`[\@ref(bahagia)](#bahagia) and `r section`[\@ref(senang)](#senang)). This kind of multiple association of an item (i.e., a metaphor) to more than one construction of interest (i.e., the synonyms) is not uncommon in MDCA, as Gilquin [-@gilquin_corpus_2010, p. 201, Table 60] has shown in her study of ten periphrastic causative constructions in English. Yet, the AssocStr values of the shared, attracted item with the constructions can be used to assume the relative association strength of the item with the constructions.
+
+In Collostructional Analysis, the commonly used cut-off points in indicating significant association strength is AssocStr > 1.30103, which is equal to *p*~Binomial~ < 0.05 [@stefanowitsch_covarying_2005, p. 7]. Higher cut-off points can also be used: (i) AssocStr > 2, which is equal to *p*~Binomial~ < 0.01, and (ii) AssocStr > 3, which is equal to *p*~Binomial~ < 0.001. These AssocStr threshold values will be marked with negative sign when the co-occurrence frequencies are less than expected. For each synonym, the AssocStr values of the metaphors can be sorted from the highest (positive) to the lowest (down to the negative values). This will rank the metaphors from the most distinctive ones to the most strongly repelled. [Table \@ref(tab:example-data-print)](#example-data-print) illustrates that significant repulsion for the metaphor according to the cut-off points can be seen from row number five. That is, starting from *`r example_df %>% filter(assocstr < -1.30103) %>% .[1,] %>% .$synonyms`* 'cheerful' (AssocStr = `r example_df %>% filter(assocstr < -1.30103) %>% .[1,] %>% .$assocstr`) down to *keceriaan* 'cheerfulness' (AssocStr = `r example_df %>% filter(assocstr < -1.30103, str_detect(synonyms, '^keceria')) %>% .$assocstr`) and *kegembiraan* 'joy, cheerfulness' (AssocStr = `r example_df %>% filter(assocstr < -1.30103, str_detect(synonyms, '^kegembira')) %>% .$assocstr`), the two synonyms showing the strongest dissociation with `r happyr::scaps('happiness is a desired goal/destination')` metaphor.
+
+The AssocStr-based ranked-list of the metaphors for each synonym is a starting point for qualitative discussion concerning the way semantically similar emotion concepts are characterised by, and vary in terms of, certain distinctive and repelled metaphors. In other words, a set of metaphors are strongly distinctive for an emotion compared to its synonyms presumably because these metaphors map conceptual knowledge that best characterises the semantic foci of the emotion. The repelled metaphors may then indicate the less entrenched metaphorical model in conceptualising the given emotion. 
+
+In relation to the aim of this chapter, the example in [Table \@ref(tab:example-data-print)](#example-data-print) minimally confirms Kövecses' assumption regarding the existence of principal, or *distinctive*, metaphors distinguishing near-synonyms of emotions. After all, it is a basic assumption in Cognitive Linguistics, in relation to its usage-based tenet [@evans_cognitive_2006, p. 122], that different usage forms (e.g. metaphorical patterns) of a linguistic unit (e.g. an emotion lexeme), have impacts on its meaning (e.g. its metaphorical construal). Nevertheless, given such quantitative method as MDCA, this usage-based assumption can be fleshed out, and the way a set of emotion synonyms differ in their preferred metaphorical conceptualisations can be spelled out more explicitly. 
+
+Note that MDCA, and the other members of Collostructional Analysis, involves repeated significance testing on the same data set [@stefanowitsch_covarying_2005, p. 36, endnote 3; @stefanowitsch_corpora_2009, p. 944]. As a rule-of-thumb, the standard threshold for the significance level, that is *p*~Binomial~ < 0.05, should be corrected for such repeated significance testing, using either the Bonferroni or Holm's correction methods^[These correction methods are available in *R* via the `p.adjust()` built-in function in the `{stats}` package. The `p.adjust()` function requires at least two input-arguments: (i) the numeric vector of *p*-values from each significance testing, and (ii) the names of the correction methods to be used, e.g. "bonferroni" or "holm". See the following website for examples: http://rcompanion.org/rcompanion/f_01.html.] [@gries_statistics_2009, pp. 242-243]. The correction is meant to restrict the significance threshold for repeated tests since there can be more chances for "a seemingly significant result has come about by accident" when more significance tests are performed [@stefanowitsch_cognitive_2011, p. 275, footnote 5]. Consequently, only certain items, whose original *p*~Binomial~-values are below the corrected significance threshold, if any, will be strictly considered significant. However, most Collostructional Analysis studies are relaxed regarding such correction. The main reason is that it is the AssocStr-based *ranking* of the collexemes (or, in our case, the metaphors) that is the most relevant for the Collostructional Analysis, rather than the strict corrected significance level [@stefanowitsch_covarying_2005, p. 36, endnote 3; @stefanowitsch_function_2005, p. 178; @stefanowitsch_corpora_2009, p. 944]. Another reason is the tradition in corpus linguistics that considers each significance test as an independence test [@stefanowitsch_corpora_2009, p. 944]. Similar practice is also adopted in the *Semantic Profile* study by Janda & Lyashevskaya [-@janda_semantic_2013], in which there is no mention of a correction method used for the *p*~FisherYatesExact~-values in the paper.
+
+In this chapter, following Stefanowitsch [-@stefanowitsch_cognitive_2011, p. 282], I report the distinctive and repelled metaphors for each synonym that are *both* significant at the uncorrected significance level, based on their AssocStr values, *and* at the corrected one, using the Holm method [@gries_statistics_2009, p. 249]. The reason for this report structure is that, as Stefanowitsch [-@stefanowitsch_function_2005, p. 178] has shown, collexemes/items that are identified as only *marginally*, or even *not*, significant, given a certain significance threshold, may also reveal systematic differences between the contrasted construction. That is amongst the reasons for the primary importance of the *ranking* in Collostructional Analysis. In [Table \@ref(tab:example-data-print)](#example-data-print) above, the column "p.holm" shows the corrected *p*~Binomial~-values with the Holm method. The "dec" column indicates the significance threshold of the corrected *p*~Holm~-values: `***` = *p*~Holm~ < 0.001; `**` = *p*~Holm~ < 0.01; `*` = *p*~Holm~ < 0.05; `ms` = marginally significant at *p*~Holm~ > 0.05; and `ns` = not significant at *p*~Holm~ > 1. For the AssocStr limit, I present the metaphors with the AssocStr > 2 (for attraction) and AssocStr < -2 (for repulsion). 
+
+## Distinctive metaphors for *kebahagiaan* 'happiness' and *bahagia* 'happiness' {#bahagia}
+
+```{r kebahagiaan-data-maintext}
+## submappings for DESIRED GOAL for KEBAHAGIAAN----
+# get the submapping of the DESIRED GOAL metaphor for KEBAHAGIAAN
+kebahagiaan_submapping_destination <- happyr::get_submappings("desired", "kebahagiaan", df = happyr::phd_data_metaphor)
+
+# determine which submapping highlights the 'attainment' aspect
+kebahagiaan_aspect_attainment <- kebahagiaan_submapping_destination %>% filter(str_detect(submappings, "reaching|grasping|finding"))
+
+# determine which submapping highlights the 'pursuing/motion process' aspects
+kebahagiaan_aspect_pursuing <- kebahagiaan_submapping_destination %>% filter(str_detect(submappings, "pursuing|aiming"))
+
+# determine which submapping highlights the 'aids for motion' aspect
+kebahagiaan_aspect_aids <- kebahagiaan_submapping_destination %>% filter(str_detect(submappings, "aids"))
+
+# determine which submapping highlights the 'goal-end of motion' aspect
+kebahagiaan_aspect_goal <- kebahagiaan_submapping_destination %>% filter(str_detect(submappings, "end of a path"))
+
+# get the total proportion of 'attainment' aspect from the total tokens of the DESIRED GOAL metaphors
+kebahagiaan_propasp_attaintment <- sum(kebahagiaan_aspect_attainment$perc)
+
+# get the total proportion of 'pursuing/motion process' aspects from the total tokens of the DESIRED GOAL metaphors
+kebahagiaan_propasp_pursuing <- sum(kebahagiaan_aspect_pursuing$perc)
+
+# get the total proportion of 'aids' aspect from the total tokens of the DESIRED GOAL metaphors
+kebahagiaan_propasp_aids <- sum(kebahagiaan_aspect_aids$perc)
+
+# get the total proportion of 'goal end of a path' aspect from the total tokens of the DESIRED GOAL metaphors
+kebahagiaan_propasp_goal <- sum(kebahagiaan_aspect_goal$perc)
+
+## CONTOH UNTUK DESIRED GOAL
+#(@reaching_kbhgn) kenapa orang ingin menikah dan **mencapai** *kebahagiaan* harus dihalangi (ind_mixed2012_1M:316902)
+#(@grasping_kbhgn) *kebahagiaan* yang telah kita **rengkuh** dapat terlepas dan berganti dengan penderitaan hidup (ind_mixed2012_1M:150246)
+#(@finding_kbhgn) di sanalah kita **menemukan** *kebahagiaan* dan motivasi yang kuat dalam bekerja (ind_news2011_300K:162690)
+
+## submappings for POSSESSABLE OBJECT for KEBAHAGIAAN----
+# get submapping of POSSESSABLE OBJECT
+kbhg_submet_possess <- happyr::get_submappings("possessable", "bahagiaan", df = happyr::phd_data_metaphor)  %>% 
+  mutate(aspect = if_else(str_detect(submappings, "(giving|dispersing|offering|caused motion)"), "cause", "others"), 
+         aspect = if_else(str_detect(submappings, "gaining"), "gaining", aspect), 
+         aspect = if_else(str_detect(submappings, "possessing"), "possessing", aspect), 
+         aspect = if_else(str_detect(submappings, "(losing|seized)"), "ceasing/losing", aspect))
+
+# get submapping of 'cause' aspect
+kbhg_asp_cause <- kbhg_submet_possess %>% filter(str_detect(submappings, "giving|caused motion|dispersing|offering"))
+
+# get submapping of 'attainment' aspect
+kbhg_asp_gain <- kbhg_submet_possess %>% filter(str_detect(submappings, "gaining"))
+
+# get submapping of 'experience' aspect
+kbhg_asp_possess <- kbhg_submet_possess %>% filter(str_detect(submappings, "possessing"))
+
+# get submapping of 'losing' aspect
+kbhg_asp_losing <- kbhg_submet_possess %>% filter(str_detect(submappings, "losing|seized"))
+
+## submappings for MOVING OBJECT for KEBAHAGIAAN----
+# get submapping of MOVING OBJECT
+kbhg_submet_movingobject <- happyr::get_submappings("moving object to a goal", "bahagiaan$", df = happyr::phd_data_metaphor)
+```
+
+```{r distinctive-for-kebahagiaan}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "kebahagiaan", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  as.data.frame() %>% 
+  knitr::kable(caption = "Distinctive metaphors for *kebahagiaan* 'happiness'", row.names = TRUE)
+```
+
+
+From [Table \@ref(tab:distinctive-for-kebahagiaan)](#distinctive-for-kebahagiaan), the metaphor that is most distinctive for *kebahagiaan* 'happiness' (N~metaphorical~ = `r filter(synonym_token, synonyms == "kebahagiaan")[["n"]]`^[This value indicates the total tokens of metaphorical patterns for a synonym in the sample.] tokens), namely `r happyr::scaps('happiness is a desired goal/destination')` metaphor, suggests the aspirative nature of *kebahagiaan* 'happiness'.
+
+...
+
+From the total tokens of the `r scaps('desired goal/destination')` metaphor occuring with *kebahagiaan*, most of the metaphorical lexical units (LUs) focus of on the 'attainment' rather than on the other aspects, such as the 'pursuing'. The prominence of 'attainment' is reflected in both its token (`r kebahagiaan_propasp_attaintment`% of the metaphor's `r sum(kebahagiaan_submapping_destination$n)` tokens) and type frequencies (`r sum(kebahagiaan_aspect_attainment$type)` different LU types).
+
+...
+
+In my Indonesian sample, *kebahagiaan* proportionally more frequently occurs in metaphorical expressions denoting the 'transferring' of the possessable object (`r sum(kbhg_asp_cause$perc)`%), as in _**memberikan** (X) kebahagiaan_ 'to *give* (X) happiness' (based on the `r happyr::scaps('giving')` frame), _**membawa** kebahagiaan_ 'to *bring* happiness' (`r happyr::scaps('caused motion')` frame), and _**berbagi** kebahagiaan_ 'to *share* happiness' (`r happyr::scaps('dispersal')` frame), among the most frequent metaphorical patterns.
+
+...
+
+In contrast to *kebahagiaan*, the three most distinctive metaphors at the corrected significance level for its root, namely *bahagia* 'happy; happiness', broadly highlights the experience or feeling aspect of *bahagia* (N~metaphorical~ = `r filter(synonym_token, synonyms == "bahagia")[["n"]]`) (cf. [Table \@ref(tab:distinctive-for-bahagia)](#distinctive-for-bahagia)).
+
+```{r distinctive-for-bahagia}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "^bahagia$", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  as.data.frame() %>% 
+  knitr::kable(caption = "Distinctive metaphors for *bahagia* 'happy; happiness'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-kebahagiaan)](#repelled-by-kebahagiaan) shows the metaphors that are strongly repelled by *kebahagiaan* 'happiness'.
+
+```{r repelled-by-kebahagiaan}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "kebahagiaan", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *kebahagiaan* 'happiness'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-bahagia)](#repelled-by-bahagia) shows the metaphors that are strongly repelled by *bahagia* 'happiness'.
+
+```{r repelled-by-bahagia}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "^bahagia$", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *bahagia* 'happy; happiness'", row.names = TRUE)
+```
+
+Next, the results of MDCA for the (window-based) distinctive lexical co-occurrence, or collocates, of *kebahagiaan*^[I limit the scope for the collocation data to the nominalised forms of the `r happyr::scaps("happiness")` synonyms for two reasons. First, they are more frequent than their corresponding root-nominal forms. Second, they are exclusively used as nominals with inherent reference function. Meanwhile, the typical usages of the root forms are attributive and predicative, rather than nominal/reference function.] reveal further semantic nuances. They indicate what concepts (e.g. other emotions, attitudes, descriptions, or evaluations) are strongly associated with *kebahagiaan* in the corpus. Theoretically, the concepts evoked by the distinctive collocates can be an operationalisation for Kövecses' [-@kovecses_where_2015, p. 158] idea regarding *related concepts* for certain emotions [cf. @oster_using_2010, for similar uses of collocation data to reveal conceptual proximity and semantic prosody of an emotion.].
+
+```{r colloc-res-kebahagiaan}
+# present the result table for collocational analysis for *kebahagiaan*
+happyr::mdca_attr(mdca_colloc, cxn_type = '^kebahagiaan') %>% 
+  top_n(20, assocstr) %>% 
+  left_join(happyr::dist_colloc_gloss, by = "collocates") %>% # left-join the gloss for the distinctive collocates
+  select(-synonyms) %>%
+  select(collocates, gloss, everything()) %>%
+  mutate(exp = round(exp, 3), 
+         collocates = paste("*", collocates, "*", sep = "")) %>%
+  knitr::kable(caption="The 20 most distinctive, 4-window span collocates for *kebahagiaan* 'happiness' in the whole Indonesian Leipzig Corpora collection.", row.names = TRUE)
+```
+
+## Distinctive metaphors for *kesenangan* 'pleasure; happiness' and *senang* 'happy; happiness; to feel well' {#senang}
+
+```{r kesenangan-data-maintext}
+# submapping for POSSESSABLE OBJECT for *kesenangan*----
+ksng_submet_possess <- happyr::get_submappings(metaphor = "possessable", word = "kesenangan", df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, "(giving|dispersing|offering|caused motion)"), "cause", "others"), 
+         aspect = if_else(str_detect(submappings, "gaining"), "gaining", aspect), 
+         aspect = if_else(str_detect(submappings, "possessing"), "possessing", aspect), 
+         aspect = if_else(str_detect(submappings, "(losing|seized)"), "ceasing/losing", aspect))
+
+# submapping for DESIRED OBJECT for *kesenangan*----
+pursuing_perc <- happyr::get_submappings(metaphor = "desired goal", word = "kesenangan", df = happyr::phd_data_metaphor) %>% 
+  filter(str_detect(submappings, "pursuing|aiming")) %>% 
+  tally(perc) %>% 
+  unlist()
+
+# total tokens of (UN)MIXED SUBSTANCE overall-----
+mixed_substance_tokens <- dim(filter(happyr::phd_data_metaphor, str_detect(metaphors, "mixed")))[1]
+
+## tokens indicating 'pure' substance
+mixed_substance_pure_tokens <- dim(filter(happyr::phd_data_metaphor, str_detect(metaphors, "mixed"), str_detect(lu, "murni")))[1] 
+
+## tokens indicating 'mixed' substance
+mixed_substance_mixed_tokens <- mixed_substance_tokens - mixed_substance_pure_tokens
+```
+
+```{r distinctive-for-kesenangan}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "kesenangan", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *kesenangan* 'pleasure; happiness'", row.names = TRUE)
+```
+
+
+The first point, as I have mentioned, is that `r happyr::scaps(tolower('HAPPINESS IS A DESIRED GOAL/DESTINATION'))` is also the most distinctive metaphor for _kesenangan_ 'pleasure' as it is for _kebahagiaan_ 'happiness', though the metaphor is most strongly associated with the latter according to its AssocStr values (`r filter(example_df, synonyms == "kesenangan")[["assocstr"]]` for *kesenangan* vs. `r filter(example_df, synonyms == "kebahagiaan")[["assocstr"]]` for *kebahagiaan*). Despite this similar attraction, a finer grained difference emerges between the two words in relation to the submappings of the metaphor. *Kesenangan* most frequently occurs with metaphorical patterns denoting the 'pursuing' aspect (`r pursuing_perc`% of all the tokens) rather than the 'attainment', which is more frequent for *kebahagiaan*.
+
+...
+
+`r happyr::get_frames(metaphor = "impediment to motion$", word = "kesenangan", df = happyr::phd_data_metaphor) %>% filter(n == max(n)) %>% .$n %>% happyr::numbers2words()` out of `r happyr::get_frames(metaphor = "impediment to motion", word = "kesenangan", df = happyr::phd_data_metaphor) %>% .$n %>% sum() %>% happyr::numbers2words()` tokens for the occurrence of this metaphor with *kesenangan* evoke the `r happyr::scaps("restraints")` frame. In this frame, *kesenangan* maps onto the Restraining_entity role (e.g. _**dikendalikan** oleh kesenangan_ 'to be *reined back* by pleasure', _kesenangan **mengendalikan/mengikat** X_ 'pleasure *reins back/binds* X', _**memikat** X **pada** kesenangan_ 'to *decoy/ensnare* X *at* pleasure'). In this case, the Experiencer comes under restraining control of *kesenangan* that makes him difficult to take other actions. 
+
+...
+
+For *kesenangan*, `r ksng_submet_possess %>% filter(aspect == "gaining") %>% .$perc %>% sum()`% of the usage tokens evoke the 'receiving' of the Possessable_object (i.e., the 'onset' of pleasure), which is based on the `r happyr::scaps("gain possession")` frame.
+
+```{r distinctive-for-senang}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "^senang$", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *senang* 'happy; happiness; to feel well'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-kesenangan)](#repelled-by-kesenangan) shows the strongly repelled metaphors for *kesenangan* 'pleasure'.
+
+```{r repelled-by-kesenangan}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "kesenangan", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *kesenangan* 'pleasure; happiness'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-senang)](#repelled-by-senang) shows the strongly repelled metaphors for *senang* 'happy; happiness; to feel well'.
+
+```{r repelled-by-senang}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "senang$", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *senang* 'happy; happiness; to feel well'", row.names = TRUE)
+```
+
+Now I turn to discuss the distinctive collocates for *kesenangan* 'pleasure' shown in [Table \@ref(tab:colloc-res-kesenangan)](#colloc-res-kesenangan).
+
+```{r colloc-res-kesenangan}
+# present the result table for collocational analysis for *kesenangan*
+happyr::mdca_attr(mdca_colloc, cxn_type = '^kesenangan') %>% 
+  top_n(20, assocstr) %>% 
+  left_join(happyr::dist_colloc_gloss, by = "collocates") %>% # left-join the gloss for the distinctive collocates
+  select(-synonyms) %>%
+  select(collocates, gloss, everything()) %>%
+  mutate(exp = round(exp, 3), 
+         collocates = paste("*", collocates, "*", sep = "")) %>%
+  knitr::kable(caption="The 20 most distinctive, 4-window span collocates for *kesenangan* 'pleasure; happiness' in the whole Indonesian Leipzig Corpora collection.", row.names = TRUE)
+```
+
+Some of the distinctive collocates of *kesenangan* provide further support for arguing the negative contour assigned to *kesenangan*, as inferred from the distinctive metaphors. To begin with the most distinctive collocate, namely *duniawi* 'wordly; earthly', everything related to it is conceived as mundane and tends to be dispreferred over the divinity, incorporealism, or eternity, which is prescribed by certain religious view. Similar religious-based outlook then gives negavite association to the other 'mundane'-related collocates, such as *nafsu*^[The word *hawa* 'air' in [Table \@ref(tab:colloc-res-kesenangan)](#colloc-res-kesenangan) is part of an established compound in Indonesian with the word *nafsu* 'lust', that is *hawa nafsu* 'lust, lit. the air of the lust'. Thus, upon inspecting the full sentences of the `r happyr::numbers2words(filter(mdca_colloc, synonyms == "kesenangan", collocates == "hawa")[["n"]])` tokens for which *hawa* collocates with *kesenangan* within the span of four words to the left and right, there is only one occasion in which *hawa* does not collocate with *nafsu*, but appears alone indicating its homonymy with *hawa* meaning 'female' (the antonym for *Adam* 'male; lit. Adam', hence another common phrase *Kaum Adam dan Hawa* 'Male and Female group; lit Adam and Eve group').] 'lust', *seksual* 'sexual', *kebutuhan* 'needs', and *dosa* 'sin'. This is different from the positive nuances of *kebahagiaan* as conveyed by its distinctive collocates (cf. [Table \@ref(tab:colloc-res-kebahagiaan)](#colloc-res-kebahagiaan)). Another top collocate for *kesenangan* is *pribadi* 'personal; private', indicating the self-centred of *kesenangan* compared to *kebahagiaan*, which is more about wider audience (e.g. *orang* 'person', *manusia* 'human'). This 'personal/general-audience' feature will also be shown to be one of the semantic benchmarks distinguishing *kesenangan* 'pleasure' with the remaining `r happyr::scaps("happiness")` concepts.
+
+## Distinctive metaphors for *kegembiraan* 'joy; cheerfulness' and *gembira* 'excite(d/ment); enthusias(tic/m)' {#gembira}
+
+```{r kegembiraan-data-maintext}
+# submapping for LIQUID IN A CONTAINER metaphor
+kgmb_submet_liquidincontainer <- happyr::get_submappings(metaphor = "liquid in a container$", word = "kegembiraan", df = happyr::phd_data_metaphor)
+
+kgmb_prop_with_liquidincontainer <- mdca_res %>% 
+  filter(str_detect(metaphors, "liquid in a container$")) %>% 
+  select(1:3) %>% 
+  # get the proportion of the LIQUID IN A CONTAINER metaphor across the synonyms
+  mutate(perc = round(n/sum(n) * 100, 2)) %>%
+  arrange(desc(perc))
+
+# submapping for (UN)VEILED OBJECT metaphor
+kgmb_unveiled_submet <- happyr::get_submappings(metaphor = "veiled", word = "(kegembiraan|^gembira)", df = happyr::phd_data_metaphor)
+
+kgmb_unveiled_submet_max <- kgmb_unveiled_submet %>% 
+  group_by(synonyms) %>% 
+  filter(perc == max(perc)) %>%
+  ungroup()
+
+negated_sentences_for_hiding <- (9/10) * 100
+```
+
+[Table \@ref(tab:distinctive-for-kegembiraan)](#distinctive-for-kegembiraan) shows the distinctive metaphors for *kegembiraan* 'joy; cheerfulness'.
+
+```{r distinctive-for-kegembiraan}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "kegembiraan", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *kegembiraan* 'joy; cheerfulness'", row.names = TRUE)
+```
+
+
+Two submappings are dominant. First, `r filter(kgmb_submet_liquidincontainer, perc == max(perc))[["perc"]]`% of the tokens consists of expressions evoking the `r happyr::scaps("release liquid")` frame, which is used to convey the expression of uncontrolled internal feeling, hence the submapping `r happyr::scaps(filter(kgmb_submet_liquidincontainer, str_detect(submappings, "released"))[["submappings"]])`. This submapping for *kegembiraan* is also the most productive in comparison to the others since it is expressed by `r happyr::numbers2words(filter(kgmb_submet_liquidincontainer, str_detect(submappings, "released"))[["type"]])` different lexical unit (LU) types (`r filter(kgmb_submet_liquidincontainer, str_detect(submappings, "released"))[["type_perc"]]`% of all types for the metaphor occurring with *kegembiraan*).
+
+...
+
+The second dominant submapping is `r happyr::scaps(filter(kgmb_submet_liquidincontainer, str_detect(submappings, "heated"))[["submappings"]])` (`r filter(kgmb_submet_liquidincontainer, str_detect(submappings, "heated"))[["perc"]]`%), which is based on the `r happyr::scaps("heated liquid")` frame. The most frequent metaphorical pattern is _**meluapkan** kegembiraan_ 'to *boil over* joy; lit. to *cause* joy to *boil over*'. Unlike the `r happyr::scaps("release liquid")` frame, the `r happyr::scaps("heated fluid")`-based submapping is only evoked by `r happyr::numbers2words(filter(kgmb_submet_liquidincontainer, str_detect(submappings, "heated"))[["type"]])` distinct LUs: *meluapkan* 'to cause to boil over' (a causative transitive verb) and *meluap(-luap)* 'to (keep) boil(ing) over' (an intransitive verb).  
+
+...
+
+The high frequency of these submappings, and more generally the distinctive association of `r happyr::scaps("liquid in a container")` with *kegembiraan*, informs the discussion in `r '**Chapter 5**'` that the prominence of the `r happyr::scaps("released liquid")` and `r happyr::scaps("heated liquid")` submappings for the whole `r happyr::scaps("happiness")` domain is contributed by the highest proportion of the metaphor to occur with *kegembiraan* (`r filter(kgmb_prop_with_liquidincontainer, synonyms == "kegembiraan")[["perc"]]`%) rather than with the remaining `r happyr::numbers2words(dim(filter(kgmb_prop_with_liquidincontainer, synonyms != "kegembiraan"))[1])` synonyms.
+
+[Table \@ref(tab:distinctive-for-gembira)](#distinctive-for-gembira) presents the strongly distinctive metaphors for *gembira* 'excite(d/ment); enthusias(tic/m)', though non of them are significant at the corrected level.
+
+```{r distinctive-for-gembira}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "^gembira$", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *gembira* 'excite(d/ment); enthusias(tic/m)'", row.names = TRUE)
+```
+
+Out of the three postulated submappings for `r happyr::scaps('happiness is an (un)veiled object')`, the dominant submapping for the nominalised (`r filter(kgmb_unveiled_submet_max, synonyms == "kegembiraan")[["perc"]]`% of the metaphor tokens) and root-nominal forms (`r filter(kgmb_unveiled_submet_max, synonyms == "gembira")[["perc"]]`%) is the same, namely `r happyr::scaps(unique(kgmb_unveiled_submet_max$submappings))` (e.g. *raut _gembira_ __tampak__ dari raut wajah Sri* 'whittle of excitement be *visible* from Sri's face'). The inability to held back or conceal the intense feeling is further evidenced by the expressions evoking the least frequent submapping for the two words, namely `r happyr::scaps('regulating happiness is hiding an object')`, which is based on the `r happyr::scaps('hiding')` frame (e.g. _**menyembunyikan**_ *rasa gembira* 'to *hide* the feeling of excitement'). From the total `r happyr::numbers2words(sum(filter(kgmb_unveiled_submet, str_detect(submappings, "hiding"))[["token"]]))` tokens of the submapping with the two words, all evoked by the verb *menyembunyikan* 'to hide', `r negated_sentences_for_hiding`% of the use of the verbal LUs are negated (e.g. *tidak* dapat _**menyembunyikan**_ *rasa gembira* 'can*not* *hide* X's feeling of excitement').
+
+[Table \@ref(tab:repelled-by-kegembiraan)](#repelled-by-kegembiraan) shows the strongly repelled metaphors for *kegembiraan* 'joy; cheerfulness'.
+
+```{r repelled-by-kegembiraan}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "kegembiraan", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *kegembiraan* 'joy'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-gembira)](#repelled-by-gembira) shows the strongly repelled metaphors for *gembira* 'excite(d/ment); enthusias(tic/m)'.
+
+```{r repelled-by-gembira}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "gembira$", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *gembira* 'excite(d/ment); enthusias(tic/m)'", row.names = TRUE)
+```
+
+```{r colloc-res-kegembiraan}
+# present the result table for collocational analysis for *kegembiraan*
+happyr::mdca_attr(mdca_colloc, cxn_type = '^kegembiraan') %>% 
+  top_n(20, assocstr) %>% 
+  left_join(happyr::dist_colloc_gloss, by = "collocates") %>% # left-join the gloss for the distinctive collocates
+  select(-synonyms) %>%
+  select(collocates, gloss, everything()) %>%
+  mutate(exp = round(exp, 3), 
+         collocates = paste("*", collocates, "*", sep = "")) %>%
+  knitr::kable(caption="The 20 most distinctive, 4-window span collocates for *kegembiraan* 'joy; cheerfulness' in the whole Indonesian Leipzig Corpora collection.", row.names = TRUE)
+```
+
+## Distinctive metaphors for *keceriaan* 'cheerfulness' {#ceria}
+
+```{r keceriaan-data-maintext}
+# submapping of the CONTAINED ENTITY metaphor
+kcra_submet_contained <- happyr::get_submappings("contained entity", "keceriaan", df = happyr::phd_data_metaphor)
+
+kcra_submet_contained_lu <- happyr::phd_data_metaphor %>%
+  filter(synonyms == "keceriaan",
+         str_detect(submappings, "fullness of entity")) %>%
+  count(lu, sort = TRUE) %>%
+  mutate(perc = round((n/sum(n)) * 100, 2))
+
+# submapping of the COLOUR metaphor
+kcra_submet_colour <- happyr::get_submappings("colour$", "keceriaan", df = happyr::phd_data_metaphor)
+
+# submapping of the QUANTITY metaphor
+kcra_submet_quantity <- happyr::get_submappings("\\squantity", "keceriaan", df = happyr::phd_data_metaphor) %>% 
+  mutate(aspect = if_else(str_detect(submappings, "(adding|more)"), "more", "less"))
+```
+
+[Table \@ref(tab:distinctive-for-keceriaan)](#distinctive-for-keceriaan) shows the distinctive metaphors for *keceriaan* 'cheerfulness; lit. purity' (N~metaphorical~ = `r dplyr::filter(synonym_token, synonyms == "keceriaan")[["n"]]`). The root-nominal *ceria* 'cheerful; lit. pure, clean' (N~metaphorical~ = `r dplyr::filter(synonym_token, synonyms == "ceria")[["n"]]`) is absent since the AssocStr values of its distinctive metaphors do not reach 2.
+
+```{r distinctive-for-keceriaan}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "keceriaan", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *keceriaan* 'cheerfulness'", row.names = TRUE)
+```
+
+For the `r happyr::scaps("contained entity")` metaphor, `r filter(kcra_submet_contained, str_detect(submappings, "fullness"))[["perc"]]`% of the tokens consist of metaphorical patterns referring to the 'fullness' of the contained emotion-entity. The patterns are expressed by only `r numbers2words(filter(kcra_submet_contained, str_detect(submappings, "fullness"))[["type"]])` LU types, namely, *__penuh__ (dengan) keceriaan* 'to be *full* with/of cheerfulness' (`r filter(kcra_submet_contained_lu, lu == "penuh")[["n"]]` tokens), *keceriaan __memenuhi__ X* 'cheerfulness *fills* X *up*' (`r filter(kcra_submet_contained_lu, lu == "penuhi")[["n"]]` tokens), and *keceriaan __menyesaki__ X* 'X be *jam-packed* with cheerfulness; cheerfulness *fills* X *up*' (`r filter(kcra_submet_contained_lu, lu == "sesaki")[["n"]]` tokens). Only `r filter(kcra_submet_contained, str_detect(submappings, "exploding"))[["perc"]]`% of the metaphor's token indicates the 'exploding' container, suggesting the inability to held back the feeling, hence its expression (*keceriaan yang __meledak__* 'cheerfulness that *explodes*').
+
+...
+
+Related inference for intensity is indicated by the submappings of the less strongly attracted metaphor, namely `r happyr::scaps("intensity of happiness is quantity of object")`. The predominant submapping broadly indicates more quantity of object (`r sum(dplyr::filter(kcra_submet_quantity, str_detect(submappings, "(adding|more)"))[["perc"]])`% of the total tokens of the metaphor occurring with *keceriaan*). This further subsumes two events: (i) 'adding' the quantity of an object (`r kcra_submet_quantity %>% filter(str_detect(submappings, "adding")) %>% .$perc`%), which could map onto the intensification process of *keceriaan*, and (ii) the state of an object in 'large quantity' (`r kcra_submet_quantity %>% filter(str_detect(submappings, "more quantity")) %>% .$perc`%), which could map onto the 'intense' state of *keceriaan*. The second of these is expressed by `r kcra_submet_quantity %>% filter(str_detect(submappings, "more quantity")) %>% .$type %>% happyr::numbers2words()` different lexical unit (LU) types compared to only `r kcra_submet_quantity %>% filter(str_detect(submappings, "adding")) %>% .$type %>% happyr::numbers2words()` for the first (i.e., _**tambah(kan)** keceriaan_ 'to *add* cheerfulness'). The metaphorical patterns containing LUs indicating 'large quantity' include _**berjuta/seribu/banyak** keceriaan_ '*millions of/thousands of/many* cheerfulness', _keceriaan **menumpuk**_ 'cheerfulness *piles-up*', among others. The predominant submapping of `r happyr::scaps("quantity")` metaphor coheres with the 'fullness' submapping of the `r happyr::scaps("contained entity")` metaphor in conveying intensity, given the fullness of a content correlates with large amount of content in relation to the capacity of the holding container.
+
+...
+
+For the `r happyr::scaps("colour")` metaphor, the metaphorical patterns most frequently liken the experience of *keceriaan* 'cheerfulness' as being coloured (`r kcra_submet_colour %>% filter(str_detect(submappings, "being coloured")) %>% .$perc`% of the total tokens). However, the metaphorical patterns are based on only `r kcra_submet_colour %>% filter(str_detect(submappings, "being coloured")) %>% .$type %>% happyr::numbers2words()` type of lexical unit
+
+...
+
+Similar 'visual' tone of *keceriaan* is argued to be conveyed via different image, namely the `r happyr::scaps("embellishment")` metaphor. Instead of being coloured, experience of *keceriaan* is conceptualised as being embellished. The most frequent metaphorical pattern (i.e., `r filter(count(filter(happyr::phd_data_metaphor, str_detect(metaphors, "embellish")), m_expr, sort = TRUE), n == max(n))[["n"]] %>% happyr::numbers2words()` tokens) is *keceriaan __menghiasi__ X* 'cheerfulness *embellishes* X', with the "X" slot is predominantly filled with the noun *wajah* 'face'
+
+...
+
+Be that as it may, both *keceriaan* and *kegembiraan* also equally have strong attraction to the `r happyr::scaps("(un)veiled object")` metaphor (AssocStr = `r filter(mdca_res, str_detect(metaphors, "veiled"), synonyms == "keceriaan")[["assocstr"]]` for *keceriaan* and AssocStr = `r filter(mdca_res, str_detect(metaphors, "veiled"), synonyms == "kegembiraan")[["assocstr"]]` for *kegembiraan*), which also focuses on the idea of 'expressivity' and 'regulation' of the feeling, though it is not significance for the corrected level.
+
+...
+
+It should also be mentioned that there are two distinctive metaphors for the nominal root *ceria* 'cheerfulness' that are also distinctive for the nominalised form *keceriaan*, even though the attraction does not reach the corrected level of significance for *ceria* (cf. [Table \@ref(tab:distinctive-for-ceria)](#distinctive-for-ceria)). These metaphors are `r happyr::scaps("happiness is a colour")` (N = `r filter(mdca_res, str_detect(metaphors, "colour$"), synonyms == "ceria")[["n"]]`, AssocStr = `r filter(mdca_res, str_detect(metaphors, "colour$"), synonyms == "ceria")[["assocstr"]]`, dec = *`r filter(mdca_res, str_detect(metaphors, "colour$"), synonyms == "ceria")[["dec"]]`*) and `r happyr::scaps("happiness is a contained entity")` (N = `r filter(mdca_res, str_detect(metaphors, "contained entity"), synonyms == "ceria")[["n"]]`, AssocStr = `r filter(mdca_res, str_detect(metaphors, "contained entity"), synonyms == "ceria")[["assocstr"]]`, dec = *`r filter(mdca_res, str_detect(metaphors, "contained entity"), synonyms == "ceria")[["dec"]]`*). This finding further indicates that, despite the lexical variation denoting the domain, there can be a tendency of similar usages and construal within the same general domain, as already been shown between the root and nominalised forms for `r happyr::scaps("gembira")` in `r section`[\@ref(gembira)](#gembira).
+
+```{r distinctive-for-ceria}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "^ceria$", min_assocstr = 1.30103) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *ceria* 'cheerful(ness)'", row.names = TRUE)
+```
+
+Looking at [Table \@ref(tab:repelled-by-keceriaan)](#repelled-by-keceriaan) for the repelled metaphors, *keceriaan* significantly repels the `r happyr::scaps("desired goal")` metaphor, distinguishing it from the distinctive metaphorical construal of *kebahagiaan* 'happiness' and *kesenangan* 'pleasure'.
+
+```{r repelled-by-keceriaan}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "keceriaan", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *keceriaan* 'cheerfulness'", row.names = TRUE)
+```
+
+Similar repulsion to the `r happyr::scaps("desired goal")` metaphor is also shown by the root nominal *ceria* 'cheerful' (cf. [Table \@ref(tab:repelled-by-ceria)](#repelled-by-ceria)).
+
+```{r repelled-by-ceria}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "^ceria$", min_assocstr = -1.30103) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphor(s) for *ceria* 'cheerfulness'", row.names = TRUE)
+```
+
+
+The fact that *keceriaan* also repels `r happyr::scaps("object's dimension")` with 'intensity' interpretation does not undermine its association with other metaphors highlighting similar quality. It is argued that the intensity of *keceriaan* is captured using different form of metaphorical patterns that evoke certain semantic frame, such as `r happyr::scaps("object quantity")` that is distinctive for *keceriaan*, rather than patterns evoking `r happyr::scaps("object's dimension")` frame. This is reflected by the most frequent pattern indicating the concept of `r scaps("object quantity")`, that is _**menambah** keceriaan_ 'to *add* cheerfulness' (`r filter(count(filter(happyr::phd_data_metaphor, synonyms == "keceriaan", str_detect(metaphors, "quantity")), m_expr, sort = TRUE), n == max(n))[["n"]]` tokens), compared to the only `r happyr::numbers2words(filter(mdca_res, synonyms == "keceriaan", str_detect(metaphors, "dimension"))[["n"]])` token for `r happyr::scaps("object's dimension")` occurring with *keceriaan*. Let us now consider the insight offered by the distinctive collocates of *keceriaan* as shown in [Table \@ref(tab:colloc-res-keceriaan)](#colloc-res-keceriaan).
+
+```{r colloc-res-keceriaan}
+# present the result table for collocational analysis for *keceriaan*
+happyr::mdca_attr(mdca_colloc, cxn_type = '^keceriaan') %>% 
+  top_n(20, assocstr) %>% 
+  left_join(happyr::dist_colloc_gloss, by = "collocates") %>% # left-join the gloss for the distinctive collocates
+  select(-synonyms) %>%
+  select(collocates, gloss, everything()) %>%
+  mutate(exp = round(exp, 3), 
+         collocates = paste("*", collocates, "*", sep = "")) %>%
+  knitr::kable(caption = paste("The 20 most distinctive, 4-window span collocates for *keceriaan* 'cheerfulness' in the combined data sets (Indonesian Leipzig Corpora, IWaC Sketch Engine, and WebCorp)^[As explained in `**Chapter 3**`, the nominalised forms for ", happyr::scaps("ceria"), " and ", happyr::scaps("riang"), " occur in a very low frequency in the whole Indonesian Leipzig Corpora compared to the forms for the other concepts. Additional data for these forms are then culled from the *IWaC* of *Sketch Engine* and ten online Indonesian newspapers via *WebCorp*.].", sep = ""), row.names = TRUE)
+```
+
+Among the interesting finding is the distinctiveness of *anak(-anak)* 'child(ren)' to co-occur with *keceriaan*. This may invoke an 'innocent' or 'pure' quality of *keceriaan*. The presence of metaphorical collocate *mengembalikan* 'to *return/give back*' may relate to *korban* 'victims', who may lose their cheerfulness. Other distinctive collocates also indicate the associated setting for *keceriaan*, such as *sekolah* 'school', *pertunjukan* '(a) show', and *lebaran* 'Ramadhan'. These settings foreground more of the social characteristics of *keceriaan*, compared to the more competitive one as for *kegembiraan* 'joy'; however, the settings generally converge on the more public/wider scope of these two `r happyr::scaps("happiness")` concepts compared to *kesenangan* 'pleasure', which is more self-centred. Affective-related collocates for *keceriaan* include *kesegaran* 'freshness' and *semangat* 'enthusiasm', the latter of which can support the proposed argument for the liveliness, intense, and vibrancy of *keceriaan* 'cheerfulness'.
+
+## Distinctive metaphors for *keriangan* 'cheer(fulness)' {#riang}
+
+The distinctive metaphors for *keriangan* are set out in [Table \@ref(tab:distinctive-for-keriangan)](#distinctive-for-keriangan). The distinctive metaphors for the root-nominal *riang* 'very happy; joyous; glad' are filtered out given the AssocStr values are below the set threshold of 2 for the discussion. Also, both *keriangan* and *riang* have the least metaphorical tokens compared to the other synonyms within their respective morphological forms (N~*keriangan*~ = `r subset(synonym_token, synonyms == "keriangan")[["n"]]` and N~*riang*~ = `r subset(synonym_token, synonyms == "riang")[["n"]]`). For this reason, some of the results need to be interpreted with caution.
+
+```{r distinctive-for-keriangan}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "keriangan", min_assocstr = 2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *keriangan* 'cheer(fulness)'", row.names = TRUE)
+```
+
+The intensity of *keriangan* can be inferred from its significant association with the `r happyr::scaps("contained entity")` metaphor, which is also distinctive for *keceriaan* (cf. [Table \@ref(tab:distinctive-for-keceriaan)](#distinctive-for-keceriaan)). *Keriangan* most frequently collocates with only one lexical unit (LU) type of the metaphor evoking 'fullness' of the Content in the following metaphorical pattern: _**penuh** (dengan) keriangan_ 'to be *full* of(/with) cheer(fullness)' (`r happyr::phd_data_metaphor %>% filter(str_detect(synonyms, "keriangan"), str_detect(metaphors, "contained entity")) %>% count(m_expr, sort = TRUE) %>% filter(n == max(n)) %>% .[["n"]]` tokens). This salient pattern reveals that *keriangan* is prominently talked about in terms of its 'intense' state (i.e., being full of it).
+
+```{r distinctive-for-riang}
+mdca_res %>%
+  happyr::mdca_attr(cxn_type = "^riang$", min_assocstr = 1.30103) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Distinctive metaphors for *riang* 'very happy; joyous'", row.names = TRUE)
+```
+
+[Table \@ref(tab:repelled-by-keriangan)](#repelled-by-keriangan) shows the strongly repelled metaphor by *keriangan* 'cheer(fulness)'.
+
+```{r repelled-by-keriangan}
+mdca_res %>%
+  happyr::mdca_repel(cxn_type = "keriangan", min_assocstr = -2) %>% 
+  mutate(exp = round(exp, 3L),
+         metaphors = happyr::scaps(metaphors)) %>% 
+  select(-synonyms) %>%
+  knitr::kable(caption = "Repelled metaphors for *keriangan* 'cheer(fulness)'", row.names = TRUE)
+```
+
+```{r colloc-res-keriangan}
+# present the result table for collocational analysis for *keriangan*
+happyr::mdca_attr(mdca_colloc, cxn_type = '^keriangan') %>% 
+  top_n(20, assocstr) %>% 
+  left_join(happyr::dist_colloc_gloss, by = "collocates") %>% # left-join the gloss for the distinctive collocates
+  select(-synonyms) %>%
+  select(collocates, gloss, everything()) %>%
+  mutate(exp = round(exp, 3), 
+         collocates = paste("*", collocates, "*", sep = "")) %>%
+  knitr::kable(caption = paste("The 20 most distinctive, 4-window span collocates for *keriangan* 'cheerfulness' in the combined data sets (Indonesian Leipzig Corpora, IWaC Sketch Engine, and WebCorp)^[As explained in `**Chapter 3**`, the nominalised forms for ", happyr::scaps("ceria"), " and ", happyr::scaps("riang"), " occur in a very low frequency in the whole Indonesian Leipzig Corpora compared to the forms for the other concepts. Additional data for these forms are then culled from the *IWaC* of *Sketch Engine* and ten online Indonesian newspapers via *WebCorp*.].", sep = ""), row.names = TRUE)
+```
+
+```{r plot-metaphor-type-freq-per-syn, fig.cap = "Distribution of metaphor types per syonynyms againts their token frequency in metaphorical patterns.", echo = FALSE, include = FALSE}
+
+# additional codes for visualising the relationship between the token frequency of the synonyms in metaphorical expressions and the number of metaphor types evoked. This is not part of the analysis in the thesis.
+
+# Narration:
+## [Figure \@ref(fig:plot-metaphor-type-freq-per-syn)](#plot-metaphor-type-freq-per-syn) visualises the relationship between the token frequency of metaphorical patterns for a given synonyms (*y*-axis) and the number of metaphor types evoked by the metaphorical patterns (*x*-axis).
+
+metaphor_type_df <- happyr::phd_data_metaphor %>% 
+  mutate(data_type = if_else(!str_detect(synonyms, "^ke.+an$"), "root", "nominalised")) %>% 
+  group_by(synonyms, data_type) %>% 
+  summarise(synonyms_tokens = n(),
+            metaphor_types_per_synonyms = n_distinct(metaphors)) %>% 
+  arrange(data_type, desc(synonyms_tokens))
+
+metaphor_type_df %>% 
+  ggplot(aes(x = metaphor_types_per_synonyms,
+             y = synonyms_tokens,
+             colour = data_type,
+             group = data_type)) +
+  geom_text(aes(label = synonyms)) +
+  xlim(c(0, 60)) +
+  theme_bw()
+```
+
+```{r kendall-cortest, echo = FALSE, include = FALSE}
+# code for computing correlation test between the token frequency of the synonyms in the metaphorical expressions and the number of metaphor types evoked. This is not part of the analysis in the thesis.
+kendall_res <- cor.test(metaphor_type_df$synonyms_tokens, metaphor_type_df$metaphor_types_per_synonyms, method = "kendall", conf.level = 0.99, alternative = "greater")
+```
+
+# R session info {-}
+
+```{r session-info}
+devtools::session_info()
+rmarkdown::pandoc_version()
+```
+
+# References {-}
+
+
