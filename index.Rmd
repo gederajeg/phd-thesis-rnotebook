@@ -1,7 +1,7 @@
 ---
-title: "R Notebook for data analysis with _happyr_ R package in Rajeg (2018)"
+title: "R Notebook for data analysis with _happyr_ R package in Rajeg (2019)"
 author: "Gede Primahadi Wijaya Rajeg"
-date: "2018-07-15"
+date: "Compiled 15 July, 2018; Last Update `r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_notebook:
     fig_caption: true
@@ -26,13 +26,13 @@ csl: apa-old-doi-prefix.csl
 
 # Preface {-}
 
-This is an R Markdown Notebook documenting how the codes in the [happyr](https://gederajeg.github.io/happyr/) package [@rajeg_happyr_2018] are used for the statistical analyses in Rajeg's [-@rajeg_metaphorical_2018] PhD thesis (submitted for examination on 28 September 2018). The study focuses on metaphors for `r happyr::scaps("happiness")` near-synonyms in Indonesian. The underlying R Markdown (.Rmd) file of the notebook also includes the in-line codes to generate numeric results in the chunks of the body-text of the relevant chapters. Thus, not all body-text of the thesis are included in this notebook. Note that there can be some differences in the wordings and arrangement between the narative in this notebook and in the final version of the thesis, but not with the quantitative analysis. 
+This is an R Markdown Notebook documenting how the codes in the [happyr](https://gederajeg.github.io/happyr/) package [@rajeg_happyr_2018] are used for the statistical analyses in Rajeg's [-@rajeg_metaphorical_2018] [PhD thesis](http://doi.org/10.26180/5cac231a97fb1). The study focuses on metaphors for `r happyr::scaps("happiness")` near-synonyms in Indonesian. The underlying R Markdown (.Rmd) file of the notebook also includes the in-line codes to generate numeric results in the chunks of the body-text of the relevant chapters. Thus, not all body-text of the thesis are included in this notebook. Note that there can be some differences in the wordings and arrangement between the narative in this notebook and in the final version of the thesis, but not with the quantitative analysis. 
 
 This R notebook is licensed under the Creative Common License [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). To download the raw .Rmd file of the notebook, go to the top right corner of the page (next to the title), click the `Code` drop-down button, and then click `Download Rmd` option. To unfold and see the content of the R code chunks, click on the `Code` button.
 
 ### Acknowledgement {-}
 
-The thesis is supervised by Dr. [Alice Gaby](http://profiles.arts.monash.edu.au/alice-gaby/) (main), Dr. [Howard Manns](http://profiles.arts.monash.edu.au/howard-manns/) (associate), and Dr. [Simon Musgrave](http://profiles.arts.monash.edu.au/simon-musgrave/) (associate). The panel members during the author's candidature milestones consist of Dr. [Anna Margetts](http://profiles.arts.monash.edu.au/anna-margetts/), Dr. [Réka Benczes](https://www.researchgate.net/profile/Reka_Benczes), and Prof. [John Newman](http://profiles.arts.monash.edu.au/john-newman/). The thesis is fully funded by [Monash University](https://www.monash.edu), Australia, through the [International Graduate Research Scholarships](https://www.monash.edu/graduate-research/future-students/scholarships): (i) *Monash International Postgraduate Research Scholarships* (MIPRS) and (ii) *Monash Graduate Scholarships* (MGS). The author also benefits from the generous research funding from the Monash Graduate Education and the Arts Graduate Research of Monash University.
+The thesis is supervised by Associate Professor [Alice Gaby](https://bit.ly/2D91Lp9) (main), Dr. [Howard Manns](https://bit.ly/2UelYPY) (associate), and Dr. [Simon Musgrave](https://bit.ly/2Z1tCAV) (associate). The panel members during the author's candidature milestones consist of Dr. [Anna Margetts](https://research.monash.edu/en/persons/anna-margetts), Dr. [Réka Benczes](https://www.researchgate.net/profile/Reka_Benczes), and Prof. [John Newman](https://www.johnnewm.org). The thesis is fully funded by [Monash University](https://www.monash.edu), Australia, through the [International Graduate Research Scholarships](https://www.monash.edu/graduate-research/future-students/scholarships): (i) *Monash International Postgraduate Research Scholarships* (MIPRS) and (ii) *Monash Graduate Scholarships* (MGS). The author also benefits from the generous research funding from the Monash Graduate Education and the Arts Graduate Research of Monash University.
 
 ```{r global_options, include = FALSE, eval = TRUE}
 knitr::opts_chunk$set(fig.width = 6, 
