@@ -23,12 +23,17 @@ csl: apa-old-doi-prefix.csl
 
 <sup>&copy;</sup> 2018 [Gede Primahadi Wijaya Rajeg](https://figshare.com/authors/Gede_Primahadi_Wijaya_Rajeg/1234749)
 <div itemscope itemtype="https://schema.org/Person"><a itemprop="sameAs" content="https://orcid.org/0000-0002-2047-8621" href="https://orcid.org/0000-0002-2047-8621" target="orcid.widget" rel="noopener noreferrer" style="vertical-align:top;"><img src="https://orcid.org/sites/default/files/images/orcid_16x16.png" style="width:1em;margin-right:.5em;" alt="ORCID iD icon">orcid.org/0000-0002-2047-8621</a></div>
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a>
 
 # Preface {-}
 
 This is an R Markdown Notebook documenting how the codes in the [happyr](https://gederajeg.github.io/happyr/) package [@rajeg_happyr_2018] are used for the statistical analyses in Rajeg's [-@rajeg_metaphorical_2018] [PhD thesis](http://doi.org/10.26180/5cac231a97fb1). The study focuses on metaphors for `r happyr::scaps("happiness")` near-synonyms in Indonesian. The underlying R Markdown (.Rmd) file of the notebook also includes the in-line codes to generate numeric results in the chunks of the body-text of the relevant chapters. Thus, not all body-text of the thesis are included in this notebook. Note that there can be some differences in the wordings and arrangement between the narative in this notebook and in the final version of the thesis, but not with the quantitative analysis. 
 
 This R notebook is licensed under the Creative Common License [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). To download the raw .Rmd file of the notebook, go to the top right corner of the page (next to the title), click the `Code` drop-down button, and then click `Download Rmd` option. To unfold and see the content of the R code chunks, click on the `Code` button.
+
+### How to cite this notebook repository (in "DataCite" style) {-}
+
+> Rajeg, Gede Primahadi Wijaya (2019): R Notebook for *Metaphorical profiles and near-synonyms: A corpus-based study of Indonesian words for <span style="font-variant:small-caps;">happiness</span>*. figshare. Code. doi: https://doi.org/10.26180/5cb65c06b1b17.
 
 ### Acknowledgement {-}
 
